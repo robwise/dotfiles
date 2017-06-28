@@ -1,0 +1,62 @@
+#!/bin/bash
+
+system_type=$(uname -s)
+
+if [ "$system_type" = "Darwin" ]; then
+
+  # install nvm if it's missing
+  if ! command -v nvm >/dev/null 2>&1; then
+    echo "Installing nvm"
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+
+    echo "Installing stable node version and setting as default"
+    nvm install stable
+    nvm alias default stable
+  fi
+
+  # install homebrew if it's missing
+  if ! command -v brew >/dev/null 2>&1; then
+    echo "Installing homebrew"
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  fi
+
+  # install dependencies in Brewfile
+  if [ -f "$HOME/.Brewfile" ]; then
+    echo "Updating homebrew bundle"
+    brew bundle --global
+  fi
+
+  # pull iterm2 preferences from the .iterm2 folder
+  if [ -d "$HOME/.iterm2" ]; then
+    echo "Setting iTerm preference folder"
+    defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.iterm2"
+  fi
+
+  # install oh-my-zsh (zsh already installed by brewfile) if it's missing
+  if ! [ -d "$HOME/.oh-my-zsh" ]; then
+    echo "Installing oh-my-zsh"
+    sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+  fi
+
+  # install scm-breeze if it's missing
+  if ! [ -d "$HOME/.scm_breeze" ]; then
+    echo "Installing scm_breeze"
+    git clone git://github.com/scmbreeze/scm_breeze.git ~/.scm_breeze
+    ~/.scm_breeze/install.sh
+  fi
+
+  # install trash-cli if it's missing
+  if ! command -v trash >/dev/null 2>&1; then
+    echo "Installing trash-cli"
+    yarn global add trash-cli
+  fi
+
+  # install flow-bin if it's missing
+  if ! command -v flow >/dev/null 2>&1; then
+    echo "Installing flow-bin"
+    yarn global add flow-bin
+  fi
+
+  echo "Bootstrap complete. Please reload your terminal."
+
+fi
