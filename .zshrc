@@ -1,5 +1,9 @@
 source "$HOME/.yadm/scripts/init.zsh"
 
+# Add zsh completions to fpath. See: https://github.com/zsh-users/zsh-completions#oh-my-zsh
+fpath=(/usr/local/share/zsh-completions $fpath)
+fpath=(~/.zsh/completions $fpath)
+
 export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load. Optionally, if you set this to "random"
@@ -80,6 +84,5 @@ if command -v brew >/dev/null 2>&1; then
   [ -f $(brew --prefix)/etc/profile.d/z.sh ] && source $(brew --prefix)/etc/profile.d/z.sh
 fi
 
-# load completions (see: https://github.com/github/hub/tree/master/etc#zsh)
-fpath=(~/.zsh/completions $fpath)
-autoload -U compinit && compinit
+# See: https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md#system-wide-installation
+source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
