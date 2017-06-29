@@ -57,6 +57,9 @@ if [ "$system_type" = "Darwin" ]; then
     yarn global add flow-bin
   fi
 
+  # turn off accents when holding down a key
+  defaults write -g ApplePressAndHoldEnabled -bool false
+
   echo "Bootstrap complete. Please reload your terminal."
 
 fi
