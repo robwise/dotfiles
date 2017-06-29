@@ -58,6 +58,9 @@ plugins=(bundler osx rake ruby rails gem brew zsh-completions)
 # see https://github.com/zsh-users/zsh-completions#oh-my-zsh
 autoload -U compinit && compinit
 
+# see https://github.com/scmbreeze/scm_breeze#zsh
+setopt no_complete_aliases
+
 source $ZSH/oh-my-zsh.sh
 
 [ -s "$HOME/.scm_breeze/scm_breeze.sh" ] && source "$HOME/.scm_breeze/scm_breeze.sh"
@@ -89,3 +92,5 @@ fi
 
 # See: https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md#system-wide-installation
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+[ -s "/Users/rob/.scm_breeze/scm_breeze.sh" ] && source "/Users/rob/.scm_breeze/scm_breeze.sh"
