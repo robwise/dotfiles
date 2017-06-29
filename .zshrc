@@ -53,7 +53,10 @@ ZSH_CUSTOM="$HOME/.yadm/oh-my-zsh-custom"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(bundler osx rake ruby rails gem brew)
+plugins=(bundler osx rake ruby rails gem brew zsh-completions)
+
+# see https://github.com/zsh-users/zsh-completions#oh-my-zsh
+autoload -U compinit && compinit
 
 source $ZSH/oh-my-zsh.sh
 
