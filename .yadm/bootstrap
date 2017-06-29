@@ -26,12 +26,6 @@ if [ "$system_type" = "Darwin" ]; then
     brew bundle --global
   fi
 
-  # pull iterm2 preferences from the .iterm2 folder
-  if [ -d "$HOME/.iterm2" ]; then
-    echo "Setting iTerm preference folder"
-    defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.iterm2"
-  fi
-
   # install oh-my-zsh (zsh already installed by brewfile) if it's missing
   if ! [ -d "$HOME/.oh-my-zsh" ]; then
     echo "Installing oh-my-zsh"
