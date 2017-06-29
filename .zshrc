@@ -79,3 +79,7 @@ eval "$(hub alias -s)"
 if command -v brew >/dev/null 2>&1; then
   [ -f $(brew --prefix)/etc/profile.d/z.sh ] && source $(brew --prefix)/etc/profile.d/z.sh
 fi
+
+# load completions (see: https://github.com/github/hub/tree/master/etc#zsh)
+fpath=(~/.zsh/completions $fpath)
+autoload -U compinit && compinit
