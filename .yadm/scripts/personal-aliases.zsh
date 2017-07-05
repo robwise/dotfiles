@@ -1,5 +1,6 @@
 alias ash="cd ~/dev/apartment-showcase/ash"
 alias fag="cd ~/dev/friendsandguests"
+alias fagc="cd ~/dev/friendsandguests/client"
 alias genres="cd ~/dev/open-source/react_on_rails-generator-results"
 alias madrone="cd ~/dev/shakacode/clients/madrone"
 alias mc="cd ~/dev/bmdi/mc-brew-app"
