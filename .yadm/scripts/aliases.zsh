@@ -18,6 +18,24 @@ alias yrc="yarn run check"
 alias yr="yarn run"
 alias nps="./node_modules/.bin/nps"
 alias cz="git-cz"
+alias dc="docker-compose"
+alias dcu="docker-compose up"
+alias dcr="docker-compose run --rm"
+alias dcs="docker-compose stop"
+
+# docker
+dci(){
+  echo "Deleting untagged docker images"
+  docker rmi $(docker images -q --filter "dangling=true")
+}
+dcc(){
+  echo "Deleting all stopped containers"
+  docker rm $(docker ps -a | grep Exited | awk '{print $1}')
+}
+dccf(){
+  echo "Stopping and Deleting all containers"
+  docker rm -f $(docker ps -a -q)
+}
 
 # allows using like "$ t unicorn.png"
 # see https://github.com/sindresorhus/trash
