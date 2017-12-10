@@ -10,6 +10,7 @@ alias ut="rspec --tag ~type:feature --tag ~slow --tag ~js --exclude-pattern '**/
 alias rake='noglob rake'
 
 alias redomigration="rails db:rollback && rails db:migrate && rails db:rollback RAILS_ENV=test && rails db:migrate RAILS_ENV=test"
+alias migrate="rails db:migrate && RAILS_ENV=test rails db:migrate"
 
 export PROCESSES_TO_QUIT='puma rake sidekiq spring rails$ ruby-debug phantomjs zeus passenger guard resque "node server.js" ruby$ node foreman'
 
