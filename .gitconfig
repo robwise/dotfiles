@@ -172,7 +172,7 @@
   insteadOf = "gist:"
 [user]
 	name = Rob Wise
-	email = robert.wise@outlook.com
+	email = rwise914@gmail.com
 [pull]
 	rebase = true
 [rerere]
