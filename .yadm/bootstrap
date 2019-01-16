@@ -54,6 +54,13 @@ if [ "$system_type" = "Darwin" ]; then
   # turn off accents when holding down a key
   defaults write -g ApplePressAndHoldEnabled -bool false
 
+  # Install powerline fonts
+  git clone https://github.com/powerline/fonts.git --depth=1
+  cd fonts
+  ./install.sh
+  cd ..
+  rm -rf fonts
+
   echo "Bootstrap complete. Please reload your terminal."
 
 fi
