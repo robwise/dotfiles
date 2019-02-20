@@ -11,7 +11,7 @@ alias rake='noglob rake'
 
 alias redomigration="rails db:rollback && rails db:migrate && rails db:rollback RAILS_ENV=test && rails db:migrate RAILS_ENV=test"
 alias migrate="rails db:migrate && RAILS_ENV=test rails db:migrate"
-alias rollback="rails db:rollback && RAILS_ENV=test rails db:migrate"
+alias rollback="rails db:rollback && RAILS_ENV=test rails db:rollback"
 alias resettestdb="RAILS_ENV=test rails db:reset"
 
 export PROCESSES_TO_QUIT='puma rake sidekiq spring rails$ ruby-debug phantomjs zeus passenger guard resque "node server.js" ruby$ node foreman'
