@@ -1,0 +1,13 @@
+[init]
+	defaultBranch = main
+[pull]
+	rebase = true
+[rebase]
+	autoStash = true
+[rerere]
+	enabled = true
+[fetch]
+	prune = true
+[user]
+	name = Rob Wise
+	email = robert.alexander.wise@gmail.com
