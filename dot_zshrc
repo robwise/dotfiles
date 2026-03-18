@@ -11,6 +11,9 @@ alias ls='eza'
 alias ll='eza -lah --icons --git'
 alias lt='eza --tree --level=2'
 
+# chezmoi dotfiles sync
+alias dotsync='brew bundle dump --global --force && chezmoi re-add && git -C "$(chezmoi source-path)" add -A && git -C "$(chezmoi source-path)" commit -m "sync dotfiles $(date +%Y-%m-%d)" && git -C "$(chezmoi source-path)" push'
+
 # TinyTeX
 export PATH="$HOME/Library/TinyTeX/bin/universal-darwin:$PATH"
 
