@@ -1,9 +1,18 @@
 export EDITOR=vim
 export VISUAL=vim
 
+source <(fzf --zsh)
 eval "$(zoxide init zsh)"
 eval "$(mise activate zsh)"
 eval "$(starship init zsh)"
 
+# eza (modern ls replacement)
+alias ls='eza'
+alias ll='eza -lah --icons --git'
+alias lt='eza --tree --level=2'
+
 # TinyTeX
 export PATH="$HOME/Library/TinyTeX/bin/universal-darwin:$PATH"
+
+# OpenClaw Completion
+source "/Users/rob/.openclaw/completions/openclaw.zsh"
