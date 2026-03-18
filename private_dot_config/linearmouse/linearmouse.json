@@ -1,0 +1,44 @@
+{
+  "$schema" : "https:\/\/schema.linearmouse.app\/0.10.4",
+  "schemes" : [
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0x8005",
+          "productName" : "BenQ ZOWIE Gaming Mouse",
+          "serialNumber" : "430F10E0920252FAA01CB3A50CB1005F",
+          "vendorID" : "0x4a5"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0,
+        "speed" : 0.243
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 0
+        },
+        "speed" : {
+          "vertical" : 51.76
+        }
+      }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "trackpad",
+          "productID" : "0x0",
+          "productName" : "Apple Internal Keyboard \/ Trackpad",
+          "serialNumber" : "HXMHQ500BUG0000YCJ+ANLM",
+          "vendorID" : "0x0"
+        }
+      },
+      "scrolling" : {
+        "reverse" : {
+          "vertical" : false
+        }
+      }
+    }
+  ]
+}
