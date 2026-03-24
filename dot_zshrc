@@ -77,6 +77,10 @@ alias grbi='git rebase -i'
 # ─────────────────────────────────────────
 
 alias dotsync='brew bundle dump --global --force && chezmoi re-add && git -C "$(chezmoi source-path)" add -A && git -C "$(chezmoi source-path)" commit -m "sync dotfiles $(date +%Y-%m-%d)" && git -C "$(chezmoi source-path)" push'
+# type `vz` to start editing the chezmoi .zshrc and automatically "apply" it
+vz() {
+  chezmoi edit --apply "${ZDOTDIR:-$HOME}/.zshrc"
+}
 
 # ─────────────────────────────────────────
 # COMPLETIONS — OPENCLAW

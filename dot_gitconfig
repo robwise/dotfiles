@@ -11,3 +11,5 @@
 [user]
 	name = Rob Wise
 	email = robert.alexander.wise@gmail.com
+[alias]
+    lg = log --graph --decorate --pretty=format:'%C(auto)%h %d %s %Cgreen(%cr) %C(bold blue)<%an>' --abbrev-commit --all

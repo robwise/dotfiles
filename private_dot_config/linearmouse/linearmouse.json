@@ -17,10 +17,16 @@
       },
       "scrolling" : {
         "acceleration" : {
-          "vertical" : 0
+          "vertical" : 1
+        },
+        "distance" : {
+          "vertical" : 3
+        },
+        "reverse" : {
+          "vertical" : true
         },
         "speed" : {
-          "vertical" : 51.76
+          "vertical" : 0
         }
       }
     },
