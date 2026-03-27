@@ -45,6 +45,36 @@
           "vertical" : false
         }
       }
+    },
+    {
+      "if" : {
+        "device" : {
+          "category" : "mouse",
+          "productID" : "0x8006",
+          "productName" : "BenQ ZOWIE Gaming Mouse",
+          "serialNumber" : "000000000000",
+          "vendorID" : "0x4a5"
+        }
+      },
+      "pointer" : {
+        "acceleration" : 0.9598,
+        "disableAcceleration" : true,
+        "speed" : 0.4376
+      },
+      "scrolling" : {
+        "acceleration" : {
+          "vertical" : 1
+        },
+        "distance" : {
+          "vertical" : 3
+        },
+        "reverse" : {
+          "vertical" : true
+        },
+        "speed" : {
+          "vertical" : 0
+        }
+      }
     }
   ]
 }

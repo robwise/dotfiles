@@ -84,8 +84,16 @@ vz() {
   chezmoi edit --apply "${ZDOTDIR:-$HOME}/.zshrc"
 }
 
+
 # ─────────────────────────────────────────
 # COMPLETIONS — OPENCLAW
 # ─────────────────────────────────────────
-
+#
 source "/Users/rob/.openclaw/completions/openclaw.zsh"
+
+
+# ─────────────────────────────────────────
+# COMPLETIONS — SCM PUFF
+# ─────────────────────────────────────────
+#
+eval "$(scmpuff init -s)"
