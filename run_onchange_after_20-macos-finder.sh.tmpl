@@ -1,0 +1,24 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+set -euo pipefail
+
+# Show full POSIX path in window title bar
+defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
+
+# Make the path bar start at ~/ instead of /Macintosh HD/Users/rob/...
+defaults write com.apple.finder PathBarRootAtHome -bool true
+
+# Default search scope = current folder
+defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"
+
+# Default view = column view (Nlsv=list, icnv=icon, clmv=column, Flwv=gallery)
+defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
+
+# Don't write .DS_Store files on network shares
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+
+# Show hidden files (⌘⇧. toggles in any Finder window)
+defaults write com.apple.finder AppleShowAllFiles -bool true
+
+killall Finder 2>/dev/null || true
+{{- end -}}
