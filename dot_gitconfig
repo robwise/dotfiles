@@ -11,5 +11,17 @@
 [user]
 	name = Rob Wise
 	email = robert.alexander.wise@gmail.com
+[core]
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	side-by-side = true
+	line-numbers = true
+[merge]
+	conflictstyle = zdiff3
+[diff]
+	colorMoved = default
 [alias]
     lg = log --graph --decorate --pretty=format:'%C(auto)%h %d %s %Cgreen(%cr) %C(bold blue)<%an>' --abbrev-commit --all
