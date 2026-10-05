@@ -1,2 +1,2 @@
 [packages]
-node = ["skills@latest"]
+node = ["skills@latest", "@openai/codex@0.160.0"]

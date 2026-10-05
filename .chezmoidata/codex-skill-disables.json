@@ -1,0 +1,10 @@
+{
+  "codexDisabledSkills": [
+    "robwise-skills:cx",
+    "robwise-skills:detail-audit",
+    "robwise-skills:em",
+    "robwise-skills:notion-house-selections",
+    "robwise-skills:peak-memo",
+    "robwise-skills:todoist"
+  ]
+}

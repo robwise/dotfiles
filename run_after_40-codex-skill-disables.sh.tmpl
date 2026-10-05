@@ -1,0 +1,11 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+set -eu
+
+# This runs on every explicit apply, even when selectors are unchanged.
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="$PNPM_HOME/bin:$PNPM_HOME:/opt/homebrew/bin:$PATH"
+exec mise exec -- python3 {{ printf "%s/.chezmoitemplates/codex-skill-disables.py" .chezmoi.sourceDir | quote }} {{ printf "%s/.codex" .chezmoi.destDir | quote }} <<'SELECTORS_JSON'
+{{ .codexDisabledSkills | toJson }}
+SELECTORS_JSON
+{{ end -}}

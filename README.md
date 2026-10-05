@@ -49,3 +49,11 @@ Bun, and Yarn.
 The [skills CLI](https://github.com/vercel-labs/skills) finds and installs reusable
 agent skills. Chezmoi installs it globally through `ni` using the package manager
 selected in `.nirc`, so `skills` is available across projects.
+
+## Codex skill settings
+
+[Codex](https://developers.openai.com/codex/) provides the coding agent and its
+configuration writer. Chezmoi installs the pinned CLI through `ni` and applies
+individual disables for the personal ChatGPT skills on each apply. The explicit
+skills publisher updates `.chezmoidata/codex-skill-disables.json` from committed
+agent declarations; removed selectors stop being enforced without being enabled.
