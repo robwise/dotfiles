@@ -19,6 +19,12 @@ for tool in node pnpm bun yarn; do
   fi
 done
 
+# Prefer mise's Yarn over Corepack launchers in the selected Node installation.
+node_bin_dir="$(dirname "$(mise which node --tool=node)")"
+if [ -x "$node_bin_dir/corepack" ]; then
+  "$node_bin_dir/node" "$node_bin_dir/corepack" disable yarn --install-directory "$node_bin_dir"
+fi
+
 {{ if .packages.node -}}
 mise exec -- ni -g {{ .packages.node | shellQuoteList | join " " }}
 {{ end -}}
