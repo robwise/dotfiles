@@ -51,6 +51,8 @@ eval "$(starship init zsh)"
 alias ls='eza'
 alias ll='eza -lah --icons --git'
 alias lt='eza --tree --level=2'
+alias la='eza -la --tree --level=2 --git'
+alias ..='cd ..'
 
 # ─────────────────────────────────────────
 # ALIASES — GIT
