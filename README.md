@@ -33,20 +33,19 @@ chezmoi apply
 ```
 
 Applying also runs eligible setup scripts, including macOS preferences, fonts,
-and document tools. Initialization alone does not apply dotfiles. The generated
-chezmoi configuration is separate from the managed destination dotfiles.
+document tools, Brewfile packages, and global Node packages. Initialization alone
+does not apply dotfiles. The generated chezmoi configuration is separate from
+the managed destination dotfiles.
+
+## Use the project's package manager
+
+[ni](https://github.com/antfu-collective/ni) detects a project's package manager
+from its metadata and lockfiles, then runs the corresponding command. We keep
+fallback and global package-manager choices in `.nirc`. Mise manages Node, pnpm,
+Bun, and Yarn.
 
 ## Run the skills CLI
 
-Use pnpm to run the [skills CLI](https://github.com/vercel-labs/skills) on demand:
-
-```sh
-pnpm dlx skills@latest find
-pnpm dlx skills@latest add owner/repo
-```
-
-Mise manages Node and pnpm. The skills CLI is run through `pnpm dlx` so it can
-follow the publisher's `latest` release without a separate managed installation
-or version pin. Pnpm caches `dlx` commands for one day by default, so repeated
-invocations may reuse the downloaded version during that period. See the
-[pnpm cache setting](https://pnpm.io/10.x/settings#dlxcachemaxage).
+The [skills CLI](https://github.com/vercel-labs/skills) finds and installs reusable
+agent skills. Chezmoi installs it globally through `ni` using the package manager
+selected in `.nirc`, so `skills` is available across projects.

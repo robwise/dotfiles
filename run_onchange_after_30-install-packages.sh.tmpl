@@ -1,0 +1,25 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+set -eu
+
+# Brewfile hash: {{ include "dot_Brewfile" | sha256sum }}
+# ni configuration hash: {{ include "dot_nirc" | sha256sum }}
+# mise configuration hash: {{ include "private_dot_config/mise/config.toml" | sha256sum }}
+
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="$PNPM_HOME/bin:$PNPM_HOME:/opt/homebrew/bin:$PATH"
+
+# Use the home configuration after chezmoi has applied the managed dotfiles.
+cd "$HOME"
+brew bundle install --file="$HOME/.Brewfile" --no-upgrade
+
+for tool in node pnpm bun yarn; do
+  if ! mise which "$tool" --tool="$tool" >/dev/null 2>&1; then
+    mise install "$tool"
+  fi
+done
+
+{{ if .packages.node -}}
+mise exec -- ni -g {{ .packages.node | shellQuoteList | join " " }}
+{{ end -}}
+{{ end -}}

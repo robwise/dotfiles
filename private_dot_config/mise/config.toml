@@ -1,6 +1,8 @@
 [tools]
-node = "24"
-pnpm = "10"
+bun = "latest"
+node = "lts"
+pnpm = "latest"
+yarn = "latest"
 
 [settings]
 idiomatic_version_file_enable_tools = ["node"]
