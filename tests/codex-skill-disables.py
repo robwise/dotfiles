@@ -3,6 +3,8 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
+import sys
 import subprocess
 import tempfile
 import tomllib
@@ -19,6 +21,10 @@ with tempfile.TemporaryDirectory(prefix='codex-disables-') as temporary:
     (source / '.chezmoidata').mkdir()
     (source / '.chezmoitemplates').mkdir()
     shutil.copyfile(SOURCE / '.chezmoitemplates/codex-skill-disables.py', source / '.chezmoitemplates/codex-skill-disables.py')
+    for managed in ['run_onchange_after_30-install-packages.sh.tmpl', 'dot_Brewfile', 'dot_nirc', 'private_dot_config/mise/config.toml', '.chezmoidata/packages.toml']:
+        destination = source / managed
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(SOURCE / managed, destination)
     shutil.copyfile(SOURCE / 'run_after_40-codex-skill-disables.sh.tmpl', source / 'run_after_40-codex-skill-disables.sh.tmpl')
     data = source / '.chezmoidata/codex-skill-disables.json'
     def selectors(names):
@@ -44,24 +50,30 @@ enabled = true
         (home / '.codex').mkdir(parents=True)
         config = home / '.codex/config.toml'
         config.write_text(initial)
-        # Stub only the prerequisite command wrapper; run the real Codex binary under network denial.
+        # A fresh machine starts without any managed global Codex executable.
         bin_dir = home / 'Library/pnpm/bin'
         bin_dir.mkdir(parents=True)
-        mise = bin_dir / 'mise'
-        mise.write_text('#!/bin/sh\nshift 2\nexec "$@"\n')
-        mise.chmod(0o755)
-        codex = bin_dir / 'codex'
-        codex.write_text(f'#!/bin/sh\nexec /usr/bin/sandbox-exec -f "{profile}" "{CODEX}" "$@"\n')
-        codex.chmod(0o755)
+        brew = bin_dir / 'brew'
+        provider = SOURCE / 'tests/fixtures/package-manager.py'
+        brew.write_text('#!/bin/sh\nexec ' + ' '.join(shlex.quote(x) for x in [sys.executable, str(provider), 'brew']) + ' "$@"\n')
+        brew.chmod(0o755)
+        shutil.copyfile(profile, base / 'deny-network.sb')
+        assert not (bin_dir / 'codex').exists()
         (base / 'chezmoi.toml').write_text('')
         return base, home, config
     machines = [machine('a'), machine('b')]
-    def apply(machine):
+    def apply(machine, missing_python=False):
         base, home, config = machine
         environment = {key: value for key, value in os.environ.items() if key in ('PATH', 'LANG', 'LC_ALL', 'TMPDIR')}
         environment['HOME'] = str(home)
+        environment['FIXTURE_CODEX'] = CODEX
+        if missing_python: environment['FIXTURE_NO_PYTHON'] = '1'
         command = [CHEZMOI, '--source', str(source), '--destination', str(home), '--config', str(base / 'chezmoi.toml'), '--cache', str(base / 'cache'), '--persistent-state', str(base / 'state.boltdb'), '--refresh-externals=never', '--no-tty', 'apply']
         result = subprocess.run(command, env=environment, cwd=root, capture_output=True, timeout=30)
+        if missing_python:
+            assert result.returncode != 0 and 'missing prerequisite: python3' in result.stderr.decode(), result.stderr.decode()
+            assert config.read_text() == initial
+            return
         assert result.returncode == 0, result.stderr.decode()
         assert not (home / '.codex/auth.json').exists()
     def verify(machine, disabled):
@@ -77,6 +89,16 @@ enabled = true
     for fixture in machines:
         apply(fixture)
         verify(fixture, ['robwise-skills:exclusive'])
+    # Inspect the actual managed installation process rather than pre-installing Codex.
+    for base, home, config in machines:
+        commands = [json.loads(line) for line in (base / 'commands.jsonl').read_text().splitlines()]
+        assert ['ni', '-g', 'skills@latest', '@openai/codex@0.160.0'] in commands
+        assert ['global-manager', 'pnpm'] in commands
+        assert all(['mise', 'install', tool] in commands for tool in ['node', 'pnpm', 'bun', 'yarn'])
+        assert any(command[0] == 'node' and command[2:4] == ['disable', 'yarn'] for command in commands)
+        assert not (home / 'Library/pnpm/bin/yarn').exists()
+        assert (home / 'Library/pnpm/bin/codex').exists()
+    apply(machine('missing-python'), missing_python=True)
     # Unchanged source reasserts a manually changed setting; a second apply is byte-idempotent.
     config = machines[0][2]
     config.write_text(config.read_text().replace('name = "robwise-skills:exclusive"\nenabled = false', 'name = "robwise-skills:exclusive"\nenabled = true'))
@@ -95,4 +117,4 @@ enabled = true
     selectors([])
     previous = config.read_bytes()
     apply(machines[0]); assert config.read_bytes() == previous
-    print('PASS: initial defaults, both homes, unchanged-source reapply, byte-idempotence, selector replacement/removal, unrelated values/comments, no credentials or network')
+    print('PASS: managed provisioning from missing Codex, pinned ni global routing, Mise installs, Corepack conflict removal, missing Python failure, initial defaults, both homes, unchanged-source reapply, byte-idempotence, selector replacement/removal, unrelated values/comments, no credentials or network')
