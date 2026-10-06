@@ -6,6 +6,7 @@ the check against it through its command-line interface.
 Run with: uv run python -m unittest discover -s scripts
 """
 
+import json
 import subprocess
 import sys
 import tempfile
@@ -339,16 +340,11 @@ class ChezmoiRunFilesTest(CheckTestCase):
 class ConfigFilesTest(CheckTestCase):
     def setUp(self):
         super().setUp()
-        self.repo.write("dot_zshrc", "alias ll='ls -l'\n")
-        self.repo.write(
-            "private_dot_config/private_karabiner/private_karabiner.json", "{}\n"
-        )
+        self.repo.write("dot_zshrc", "export EDITOR=nvim\n")
+        self.repo.write(KARABINER_PATH, "{}\n")
         self.repo.write(
             "docs/inventory.md",
-            INVENTORY_HEADER
-            + "## Config files\n\n"
-            + "- **[`~/.config/karabiner/karabiner.json`](https://karabiner-elements.pqrs.org/docs/)**: Remaps.\n"
-            + "- **[`~/.zshrc`](https://zsh.sourceforge.io/Doc/)**: Shell.\n",
+            INVENTORY_HEADER + "## Config files\n\n" + KARABINER_ENTRY + ZSHRC_ENTRY,
         )
 
     def test_passes_when_every_config_file_has_an_inventory_entry(self):
@@ -435,11 +431,12 @@ class ShellAliasesTest(CheckTestCase):
         self.repo.write("dot_zshrc", "alias gs='git status'\n")
         self.assertFailsMentioning("'gc'", "docs/usage.md")
 
-    def test_excuses_shell_aliases_awaiting_their_usage_section(self):
+    def test_excuses_no_shell_alias(self):
         self.repo.write(
-            "dot_zshrc", "alias gs='git status'\nalias gc='git commit'\nalias ll='eza -lah'\n"
+            "dot_zshrc",
+            "alias gs='git status'\nalias gc='git commit'\nalias ll='eza -lah'\n",
         )
-        self.assertPasses()
+        self.assertFailsMentioning("Shell alias", "'ll'", "docs/usage.md")
 
     def test_counts_several_aliases_in_one_cell(self):
         self.repo.write("dot_zshrc", "alias gs='git status'\nalias gst='git status'\n")
@@ -459,6 +456,49 @@ class ShellAliasesTest(CheckTestCase):
             "docs/usage.md",
             usage_table(("`gs`", "`git status`"), ("`gc`", "`git commit`"))
             + "\n```md\n| `gx` | `git x` |\n```\n",
+        )
+        self.assertPasses()
+
+
+ZSHRC_WITH_FUNCTIONS = """\
+vz() {
+  chezmoi edit --apply ~/.zshrc
+}
+function mkcd {
+  mkdir -p "$1" && cd "$1"
+}
+"""
+
+
+class ShellFunctionsTest(CheckTestCase):
+    def setUp(self):
+        super().setUp()
+        self.repo.write("dot_zshrc", ZSHRC_WITH_FUNCTIONS)
+        self.repo.write("docs/inventory.md", INVENTORY_HEADER + ZSHRC_ENTRY)
+        self.repo.write(
+            "docs/usage.md",
+            usage_table(("`vz`", "`chezmoi edit --apply`"), ("`mkcd`", "`mkdir -p`")),
+        )
+
+    def test_passes_when_every_shell_function_is_in_a_usage_table(self):
+        self.assertPasses()
+
+    def test_fails_naming_a_shell_function_missing_from_the_usage_guide(self):
+        self.repo.write(
+            "dot_zshrc", ZSHRC_WITH_FUNCTIONS + "function up() {\n  cd ..\n}\n"
+        )
+        self.assertFailsMentioning("Shell function", "'up'", "docs/usage.md")
+
+    def test_fails_naming_a_usage_entry_for_a_removed_shell_function(self):
+        self.repo.write("dot_zshrc", ZSHRC_WITH_FUNCTIONS.split("function mkcd")[0])
+        self.assertFailsMentioning("'mkcd'", "docs/usage.md")
+
+    def test_ignores_functions_registered_as_line_editor_widgets(self):
+        self.repo.write(
+            "dot_zshrc",
+            ZSHRC_WITH_FUNCTIONS
+            + "function zle-keymap-select() {\n  :\n}\nzle -N zle-keymap-select\n"
+            + "_expand() {\n  :\n}\nzle -N expand-alias _expand\n",
         )
         self.assertPasses()
 
@@ -549,6 +589,73 @@ class GhAliasesTest(CheckTestCase):
         self.repo.write(GH_CONFIG_PATH, "version: 1\naliases: {}\n")
         self.repo.write("docs/usage.md", USAGE_HEADER)
         self.assertPasses()
+
+
+def key_remap_table(*rows: tuple[str, str]) -> str:
+    """A usage guide with one `Key | Does` table."""
+    lines = ["## Keyboard & mouse", "", "| Key | Does |", "| --- | --- |"]
+    lines += [f"| {key} | {does} |" for key, does in rows]
+    return USAGE_HEADER + "\n".join(lines) + "\n"
+
+
+KARABINER_PATH = "private_dot_config/private_karabiner/private_karabiner.json"
+CAPS_LOCK_RULE = "Caps Lock to Escape on single press, Caps Lock on press and hold."
+HYPER_RULE = "Fn + Letter -> Hyper + Letter"
+
+
+def karabiner_config(*descriptions: str) -> str:
+    rules = [{"description": d, "manipulators": []} for d in descriptions]
+    return json.dumps(
+        {
+            "profiles": [
+                {
+                    "name": "Default profile",
+                    "complex_modifications": {"rules": rules},
+                    "simple_modifications": [
+                        {
+                            "from": {"key_code": "right_option"},
+                            "to": [{"key_code": "delete_forward"}],
+                        }
+                    ],
+                }
+            ]
+        }
+    )
+
+
+# The Karabiner JSON is also a config file, so fixtures that write it need this entry.
+KARABINER_ENTRY = (
+    "- **[`~/.config/karabiner/karabiner.json`](https://karabiner-elements.pqrs.org/docs/)**: Remaps.\n"
+)
+
+
+class KarabinerRulesTest(CheckTestCase):
+    def setUp(self):
+        super().setUp()
+        self.repo.write(KARABINER_PATH, karabiner_config(CAPS_LOCK_RULE, HYPER_RULE))
+        self.repo.write("docs/inventory.md", INVENTORY_HEADER + KARABINER_ENTRY)
+        self.repo.write(
+            "docs/usage.md",
+            key_remap_table(
+                (f"Caps Lock: `{CAPS_LOCK_RULE}`", "Escape when tapped"),
+                (f"`{HYPER_RULE}`", "Hyper shortcuts"),
+                ("Right Option", "Forward delete"),
+            ),
+        )
+
+    def test_passes_when_every_rule_is_in_a_key_remap_table(self):
+        self.assertPasses()
+
+    def test_fails_naming_a_rule_missing_from_the_usage_guide(self):
+        self.repo.write(
+            KARABINER_PATH,
+            karabiner_config(CAPS_LOCK_RULE, HYPER_RULE, "Right Command to Hyper"),
+        )
+        self.assertFailsMentioning("Key remap", "'Right Command to Hyper'", "docs/usage.md")
+
+    def test_fails_naming_a_usage_entry_for_a_removed_rule(self):
+        self.repo.write(KARABINER_PATH, karabiner_config(CAPS_LOCK_RULE))
+        self.assertFailsMentioning(f"'{HYPER_RULE}'", "docs/usage.md")
 
 
 class RepositoryTest(unittest.TestCase):

@@ -10,12 +10,13 @@ Each extractor reads repository files directly and returns a Coverage: the doc
 that must document its items, the item names, and the tracked files it reads.
 The check fails when an item has no entry in its doc, when a doc has an entry
 that no extractor produced, or when a tracked file is neither read by an
-extractor nor listed in REPOSITORY_FILES or PENDING_FILES.
+extractor nor listed in REPOSITORY_FILES.
 """
 
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -42,11 +43,6 @@ REPOSITORY_FILES = [
     "scripts/check-docs.py",
     "scripts/test_check_docs.py",
 ]
-
-# Tracked files that a later ticket's extractor will account for. Each ticket
-# deletes its group once its extractor reads these files. Exact paths only, one
-# per line, so unrelated additions still fail.
-PENDING_FILES: list[str] = []
 
 
 @dataclass(frozen=True)
@@ -275,29 +271,16 @@ def chezmoi_run_files(root: Path) -> Coverage:
 
 # ─── Usage guide extractors ───────────────────────────────────────────────
 
-# Shell aliases whose usage section a later ticket writes. Each ticket deletes
-# its group once the usage guide documents those aliases.
-PENDING_SHELL_ALIASES = [
-    # Terminal and Dotfiles sections (PER-100)
-    "..",
-    "dotsync",
-    "la",
-    "ll",
-    "ls",
-    "lt",
-]
-
 ZSHRC = "dot_zshrc"
 SHELL_ALIAS = re.compile(r"^\s*alias\s+([^=\s]+)=", re.MULTILINE)
 
 
 @extractor
 def shell_aliases(root: Path) -> Coverage:
-    aliases = set(SHELL_ALIAS.findall(read(root, ZSHRC))) - set(PENDING_SHELL_ALIASES)
     return Coverage(
         kind="Shell alias",
         doc=USAGE,
-        items=frozenset(aliases),
+        items=frozenset(SHELL_ALIAS.findall(read(root, ZSHRC))),
         files=frozenset({ZSHRC}),
     )
 
@@ -343,6 +326,50 @@ def gh_aliases(root: Path) -> Coverage:
     )
 
 
+# `name() {`, `function name() {`, or `function name {`.
+SHELL_FUNCTION = re.compile(
+    r"^\s*(?:function\s+([^\s(){}]+)(?:\s*\(\))?|([^\s(){}=]+)\s*\(\))\s*\{",
+    re.MULTILINE,
+)
+# `zle -N widget [function]` registers a line editor widget, not a command.
+ZLE_WIDGET = re.compile(r"^\s*zle\s+-N\s+(\S+)(?:[ \t]+([^\s#]\S*))?", re.MULTILINE)
+
+
+@extractor
+def shell_functions(root: Path) -> Coverage:
+    """Functions in `.zshrc` you type as commands; widget functions are skipped."""
+    zshrc = read(root, ZSHRC)
+    functions = {a or b for a, b in SHELL_FUNCTION.findall(zshrc)}
+    widgets = {function or widget for widget, function in ZLE_WIDGET.findall(zshrc)}
+    return Coverage(
+        kind="Shell function",
+        doc=USAGE,
+        items=frozenset(functions - widgets),
+        files=frozenset({ZSHRC}),
+    )
+
+
+KARABINER = "private_dot_config/private_karabiner/private_karabiner.json"
+
+
+@extractor
+def karabiner_rules(root: Path) -> Coverage:
+    """Descriptions of the complex modification rules in every Karabiner profile."""
+    text = read(root, KARABINER)
+    profiles = json.loads(text).get("profiles", []) if text.strip() else []
+    return Coverage(
+        kind="Key remap",
+        doc=USAGE,
+        items=frozenset(
+            rule["description"]
+            for profile in profiles
+            for rule in profile.get("complex_modifications", {}).get("rules", [])
+            if rule.get("description")
+        ),
+        files=frozenset({KARABINER}),
+    )
+
+
 # ─── Check ────────────────────────────────────────────────────────────────
 
 
@@ -372,9 +399,10 @@ def check(root: Path) -> list[str]:
             )
 
     accounted = set().union(*(coverage.files for coverage in coverages))
-    listed = REPOSITORY_FILES + PENDING_FILES
     for path in tracked_files(root):
-        if path not in accounted and not any(fnmatch(path, p) for p in listed):
+        if path not in accounted and not any(
+            fnmatch(path, pattern) for pattern in REPOSITORY_FILES
+        ):
             errors.append(
                 f"{path}: tracked file is not accounted for; teach "
                 "scripts/check-docs.py to extract it, or add it to REPOSITORY_FILES"

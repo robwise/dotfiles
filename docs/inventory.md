@@ -44,7 +44,7 @@ no other links. A tapped formula's name drops the tap (`owner/tap/name` is
 - **[librsvg](https://gitlab.gnome.org/GNOME/librsvg)**: SVG rendering library; provides `rsvg-convert` so pandoc can put SVG images in PDFs.
 - **[mise](https://mise.jdx.dev/)**: Runtime manager for node, pnpm, bun, and yarn. `.zshrc` activates it, and node follows LTS unless a project has an `.nvmrc` or `.node-version`.
 - **[neovim](https://neovim.io/doc/)**: Terminal editor, set as `$EDITOR` and `$VISUAL`.
-- **[ni](https://github.com/antfu-collective/ni)**: Runs the right Node package manager for a project from its lockfile. `.nirc` falls back to pnpm and uses pnpm for global installs.
+- **[ni](https://github.com/antfu-collective/ni)**: Runs the right Node package manager for a project, detected from its `package.json` and lockfile. `.nirc` falls back to pnpm and uses pnpm for global installs.
 - **[pandoc](https://pandoc.org/MANUAL.html)**: Converts between markup formats. A chezmoi run file adds TinyTeX and the Eisvogel template for PDF output.
 - **[ripgrep](https://github.com/BurntSushi/ripgrep)**: Fast recursive search, run as `rg`.
 - **[scmpuff](https://github.com/mroth/scmpuff)**: Numbers the files in `git status` output so later commands can refer to them by number. `.zshrc` initializes it.

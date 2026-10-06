@@ -32,20 +32,15 @@ Then apply them when ready:
 chezmoi apply
 ```
 
-Applying also runs eligible setup scripts, including macOS preferences, fonts,
-document tools, Brewfile packages, and global Node packages. Initialization alone
-does not apply dotfiles. The generated chezmoi configuration is separate from
-the managed destination dotfiles.
+Applying writes the config files and runs the chezmoi run files, which set
+macOS preferences and install fonts, document tools, Brewfile packages, global
+Node packages, and this repository's pre-commit hook. Initialization alone
+does not apply anything. The generated chezmoi configuration is separate from
+the config files chezmoi manages.
 
-## Use the project's package manager
+## Documentation
 
-[ni](https://github.com/antfu-collective/ni) detects a project's package manager
-from its metadata and lockfiles, then runs the corresponding command. We keep
-fallback and global package-manager choices in `.nirc`. Mise manages Node, pnpm,
-Bun, and Yarn.
-
-## Run the skills CLI
-
-The [skills CLI](https://github.com/vercel-labs/skills) finds and installs reusable
-agent skills. Chezmoi installs it globally through `ni` using the package manager
-selected in `.nirc`, so `skills` is available across projects.
+- [Inventory](docs/inventory.md): every package, font, config file, and chezmoi
+  run file, with its purpose and our approach.
+- [Usage](docs/usage.md): how to use the setup day to day, by activity,
+  including every alias and key remap.
