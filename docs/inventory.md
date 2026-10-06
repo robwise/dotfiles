@@ -68,7 +68,7 @@ no other links. A tapped formula's name drops the tap (`owner/tap/name` is
 ## Fonts
 
 - **[font-symbols-only-nerd-font](https://github.com/ryanoasis/nerd-fonts)**: Nerd Font icon glyphs with no letters, installed as a Homebrew cask. Ghostty falls back to it for the icons that eza and other tools print.
-- **[MonoLisaVariableItalic.ttf](https://www.monolisa.dev/)**: Italic styles of MonoLisa, a commercial monospaced coding font. Kept in `fonts/` and copied to `~/Library/Fonts` by `run_once_install-fonts.sh`.
+- **[MonoLisaVariableItalic.ttf](https://www.monolisa.dev/)**: Italic styles of MonoLisa, a commercial monospaced coding font and Ghostty's font. Kept in `fonts/` and copied to `~/Library/Fonts` by `run_once_install-fonts.sh`.
 - **[MonoLisaVariableNormal.ttf](https://www.monolisa.dev/)**: Upright styles of MonoLisa, Ghostty's font. Kept in `fonts/` and copied to `~/Library/Fonts` by `run_once_install-fonts.sh`.
 
 ## VS Code extensions
