@@ -14,16 +14,15 @@ Headings, in this order:
 9. Chezmoi run files
 
 Taps get no entries. One alphabetical bullet per entry: a bold name that
-links to upstream docs, then the purpose, then our choices. State each
-setting once, on the config file or chezmoi run file entry that sets it. Name
-the installer only when the heading doesn't already say it (for example,
+links to upstream docs, then the purpose, then our choices. Name the
+installer only when the heading doesn't already say it (for example,
 under Fonts). Use no other links. A tapped formula's name drops the tap
 (`owner/tap/name` is `name`).
 
 ```md
 ## JavaScript toolchain (mise)
 
-- **[bun](https://bun.sh/docs)**: JavaScript runtime, bundler, and package manager.
+- **[node](https://nodejs.org/docs)**: JavaScript runtime. Follows LTS; projects can pin a version with `.nvmrc`/`.node-version`.
 ```
 -->
 
@@ -104,7 +103,7 @@ Every package, font, config file, and chezmoi run file this repository sets up.
 ## JavaScript toolchain (mise)
 
 - **[bun](https://bun.sh/docs)**: JavaScript runtime, bundler, and package manager.
-- **[node](https://nodejs.org/docs)**: JavaScript runtime.
+- **[node](https://nodejs.org/docs)**: JavaScript runtime. Follows LTS; projects can pin a version with `.nvmrc`/`.node-version`.
 - **[pnpm](https://pnpm.io/)**: Package manager.
 - **[yarn](https://yarnpkg.com/)**: Package manager for projects with a Yarn lockfile.
 
