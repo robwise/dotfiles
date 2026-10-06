@@ -100,6 +100,20 @@ def inventory_entries(text: str) -> set[str]:
     return {name.strip("`") for name in INVENTORY_ENTRY.findall(text)}
 
 
+TABLE_FIRST_CELL = re.compile(r"^\s*\|([^|\n]*)\|", re.MULTILINE)
+CODE_SPAN = re.compile(r"`([^`\n]+)`")
+
+
+@doc_parser(USAGE)
+def usage_entries(text: str) -> set[str]:
+    """Entries are code spans in the first cell of a table row, in any section."""
+    return {
+        name.strip()
+        for cell in TABLE_FIRST_CELL.findall(text)
+        for name in CODE_SPAN.findall(cell)
+    }
+
+
 # ─── Inventory extractors ─────────────────────────────────────────────────
 
 BREWFILE = "dot_Brewfile"
@@ -260,6 +274,73 @@ def chezmoi_run_files(root: Path) -> Coverage:
 
 
 # ─── Usage guide extractors ───────────────────────────────────────────────
+
+# Shell aliases whose usage section a later ticket writes. Each ticket deletes
+# its group once the usage guide documents those aliases.
+PENDING_SHELL_ALIASES = [
+    # Terminal and Dotfiles sections (PER-100)
+    "..",
+    "dotsync",
+    "la",
+    "ll",
+    "ls",
+    "lt",
+]
+
+ZSHRC = "dot_zshrc"
+SHELL_ALIAS = re.compile(r"^\s*alias\s+([^=\s]+)=", re.MULTILINE)
+
+
+@extractor
+def shell_aliases(root: Path) -> Coverage:
+    aliases = set(SHELL_ALIAS.findall(read(root, ZSHRC))) - set(PENDING_SHELL_ALIASES)
+    return Coverage(
+        kind="Shell alias",
+        doc=USAGE,
+        items=frozenset(aliases),
+        files=frozenset({ZSHRC}),
+    )
+
+
+GITCONFIG = "dot_gitconfig"
+GIT_SECTION = re.compile(r"^\s*\[([^\]]+)\]")
+GIT_KEY = re.compile(r"^\s*([A-Za-z0-9-]+)\s*=")
+
+
+@extractor
+def git_aliases(root: Path) -> Coverage:
+    """Keys of every `[alias]` section, documented as `git <alias>`."""
+    aliases: set[str] = set()
+    section = ""
+    for line in read(root, GITCONFIG).splitlines():
+        if match := GIT_SECTION.match(line):
+            section = match.group(1).strip().lower()
+        elif section == "alias" and (match := GIT_KEY.match(line)):
+            aliases.add(f"git {match.group(1)}")
+    return Coverage(
+        kind="Git alias",
+        doc=USAGE,
+        items=frozenset(aliases),
+        files=frozenset({GITCONFIG}),
+    )
+
+
+GH_CONFIG = "private_dot_config/gh/private_config.yml"
+GH_ALIASES_BLOCK = re.compile(r"^aliases:[ \t]*\n((?:[ \t]+.*\n?|[ \t]*\n)*)", re.MULTILINE)
+GH_ALIAS = re.compile(r"""^[ \t]+["']?([^"':#\s]+)["']?[ \t]*:""", re.MULTILINE)
+
+
+@extractor
+def gh_aliases(root: Path) -> Coverage:
+    """Keys of the top-level `aliases:` mapping, documented as `gh <alias>`."""
+    block = GH_ALIASES_BLOCK.search(read(root, GH_CONFIG))
+    aliases = GH_ALIAS.findall(block.group(1)) if block else []
+    return Coverage(
+        kind="gh alias",
+        doc=USAGE,
+        items=frozenset(f"gh {alias}" for alias in aliases),
+        files=frozenset({GH_CONFIG}),
+    )
 
 
 # ─── Check ────────────────────────────────────────────────────────────────
