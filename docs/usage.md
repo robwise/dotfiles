@@ -91,7 +91,9 @@ changes side by side with line numbers and highlights moved lines.
 - See what changed, with each file numbered: `gs`
 - Stage files by number: `ga 1 3` or `ga 2-4` (prints the numbered status
   again)
-- Diff, check out, or unstage files by number: `gd 2`, `gco 2`, `grs 1`
+- Diff a file by number: `gd 2`
+- Throw away your changes to a file: `gco 2`
+- Unstage a file: `grs 1`
 - Use the numbers in other git commands, such as `git commit`, `git rm`, or
   `git restore`; in non-git commands, use `$e1`, `$e2`, and so on
 - Stage everything and commit: `gaa`, then `gcm "message"`
