@@ -300,8 +300,13 @@ def chezmoi_run_files(root: Path) -> Coverage:
 
 # ─── Usage guide extractors ───────────────────────────────────────────────
 
-ZSHRC = "dot_zshrc"
+# Every zsh startup file this repository manages.
+ZSH_CONFIGS = frozenset({"dot_zshenv", "dot_zprofile", "dot_zshrc"})
 SHELL_ALIAS = re.compile(r"^\s*alias\s+([^=\s]+)=", re.MULTILINE)
+
+
+def read_zsh_configs(root: Path) -> str:
+    return "\n".join(read(root, path) for path in sorted(ZSH_CONFIGS))
 
 
 @extractor
@@ -309,8 +314,8 @@ def shell_aliases(root: Path) -> Coverage:
     return Coverage(
         kind="Shell alias",
         doc=USAGE,
-        items=frozenset(SHELL_ALIAS.findall(read(root, ZSHRC))),
-        files=frozenset({ZSHRC}),
+        items=frozenset(SHELL_ALIAS.findall(read_zsh_configs(root))),
+        files=ZSH_CONFIGS,
     )
 
 
@@ -366,15 +371,15 @@ ZLE_WIDGET = re.compile(r"^\s*zle\s+-N\s+(\S+)(?:[ \t]+([^\s#]\S*))?", re.MULTIL
 
 @extractor
 def shell_functions(root: Path) -> Coverage:
-    """Functions in `.zshrc` you type as commands; widget functions are skipped."""
-    zshrc = read(root, ZSHRC)
-    functions = {a or b for a, b in SHELL_FUNCTION.findall(zshrc)}
-    widgets = {function or widget for widget, function in ZLE_WIDGET.findall(zshrc)}
+    """Zsh functions you type as commands; line editor widgets are skipped."""
+    zsh = read_zsh_configs(root)
+    functions = {a or b for a, b in SHELL_FUNCTION.findall(zsh)}
+    widgets = {function or widget for widget, function in ZLE_WIDGET.findall(zsh)}
     return Coverage(
         kind="Shell function",
         doc=USAGE,
         items=frozenset(functions - widgets),
-        files=frozenset({ZSHRC}),
+        files=ZSH_CONFIGS,
     )
 
 

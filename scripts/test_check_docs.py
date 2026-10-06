@@ -405,6 +405,8 @@ def usage_table(*rows: tuple[str, str]) -> str:
 
 # dot_zshrc is also a config file, so fixtures that write it need this entry.
 ZSHRC_ENTRY = "- **[`~/.zshrc`](https://zsh.sourceforge.io/Doc/)**: Shell.\n"
+ZPROFILE_ENTRY = "- **[`~/.zprofile`](https://zsh.sourceforge.io/Doc/)**: Login.\n"
+ZSHENV_ENTRY = "- **[`~/.zshenv`](https://zsh.sourceforge.io/Doc/)**: Every shell.\n"
 
 
 class ShellAliasesTest(CheckTestCase):
@@ -451,6 +453,11 @@ class ShellAliasesTest(CheckTestCase):
         )
         self.assertFailsMentioning("Shell alias", "'gc'")
 
+    def test_fails_naming_an_alias_from_zprofile_missing_from_the_usage_guide(self):
+        self.repo.write("dot_zprofile", "alias up='cd ..'\n")
+        self.repo.write("docs/inventory.md", INVENTORY_HEADER + ZSHRC_ENTRY + ZPROFILE_ENTRY)
+        self.assertFailsMentioning("Shell alias", "'up'", "docs/usage.md")
+
     def test_ignores_aliases_in_code_blocks(self):
         self.repo.write(
             "docs/usage.md",
@@ -492,6 +499,29 @@ class ShellFunctionsTest(CheckTestCase):
     def test_fails_naming_a_usage_entry_for_a_removed_shell_function(self):
         self.repo.write("dot_zshrc", ZSHRC_WITH_FUNCTIONS.split("function mkcd")[0])
         self.assertFailsMentioning("'mkcd'", "docs/usage.md")
+
+    def test_fails_naming_a_shell_function_from_zshenv_missing_from_the_usage_guide(self):
+        self.repo.write("dot_zshenv", "up() {\n  cd ..\n}\n")
+        self.repo.write("docs/inventory.md", INVENTORY_HEADER + ZSHRC_ENTRY + ZSHENV_ENTRY)
+        self.assertFailsMentioning("Shell function", "'up'", "docs/usage.md")
+
+    def test_passes_when_functions_from_every_zsh_config_file_are_documented(self):
+        self.repo.write("dot_zshenv", "up() {\n  cd ..\n}\n")
+        self.repo.write("dot_zprofile", "alias home='cd ~'\n")
+        self.repo.write(
+            "docs/inventory.md",
+            INVENTORY_HEADER + ZSHRC_ENTRY + ZPROFILE_ENTRY + ZSHENV_ENTRY,
+        )
+        self.repo.write(
+            "docs/usage.md",
+            usage_table(
+                ("`vz`", "`chezmoi edit --apply`"),
+                ("`mkcd`", "`mkdir -p`"),
+                ("`up`", "`cd ..`"),
+                ("`home`", "`cd ~`"),
+            ),
+        )
+        self.assertPasses()
 
     def test_ignores_functions_registered_as_line_editor_widgets(self):
         self.repo.write(
