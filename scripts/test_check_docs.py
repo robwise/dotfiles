@@ -453,6 +453,14 @@ class ShellAliasesTest(CheckTestCase):
         )
         self.assertFailsMentioning("Shell alias", "'gc'")
 
+    def test_counts_aliases_in_any_table(self):
+        self.repo.write(
+            "docs/usage.md",
+            usage_table(("`gs`", "`git status`"))
+            + "\n| Key | Does |\n| --- | --- |\n| `gc` | `git commit` |\n",
+        )
+        self.assertPasses()
+
     def test_fails_naming_an_alias_from_zprofile_missing_from_the_usage_guide(self):
         self.repo.write("dot_zprofile", "alias up='cd ..'\n")
         self.repo.write("docs/inventory.md", INVENTORY_HEADER + ZSHRC_ENTRY + ZPROFILE_ENTRY)

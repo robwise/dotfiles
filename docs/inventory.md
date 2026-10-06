@@ -46,7 +46,7 @@ Every package, font, config file, and chezmoi run file this repository sets up.
 - **[mise](https://mise.jdx.dev/)**: Installs and switches the JavaScript toolchain: node, pnpm, bun, and yarn.
 - **[neovim](https://neovim.io/doc/)**: Terminal editor.
 - **[ni](https://github.com/antfu-collective/ni)**: Runs the right Node package manager for a project, detected from its `package.json` and lockfile.
-- **[pandoc](https://pandoc.org/MANUAL.html)**: Converts between markup formats. A chezmoi run file adds TinyTeX and the Eisvogel template for PDF output.
+- **[pandoc](https://pandoc.org/MANUAL.html)**: Converts between markup formats.
 - **[ripgrep](https://github.com/BurntSushi/ripgrep)**: Fast recursive search, run as `rg`.
 - **[scmpuff](https://github.com/mroth/scmpuff)**: Numbers the files in `git status` output so later commands can refer to them by number.
 - **[spogo](https://github.com/openclaw/spogo)**: Spotify CLI.
@@ -94,7 +94,7 @@ Every package, font, config file, and chezmoi run file this repository sets up.
 
 ## Global Python packages (uv)
 
-- **[pre-commit](https://pre-commit.com/)**: Git hook manager. This repository's hook runs `scripts/check-docs.py` before each commit, and a chezmoi run file installs the hook.
+- **[pre-commit](https://pre-commit.com/)**: Git hook manager.
 - **[ruff](https://docs.astral.sh/ruff/)**: Python linter and formatter.
 
 ## Global Node packages (ni)
