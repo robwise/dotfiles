@@ -150,14 +150,30 @@ def brewfile_entries(root: Path, entry_type: str) -> set[str]:
     return {name.rsplit("/", 1)[-1] for name in pattern.findall(read(root, BREWFILE))}
 
 
-@extractor
-def homebrew_formulae(root: Path) -> Coverage:
-    return Coverage(
-        kind="Homebrew formula",
-        doc=INVENTORY,
-        items=frozenset(brewfile_entries(root, "brew")),
-        files=frozenset({BREWFILE}),
-    )
+# Brewfile entry types where every entry is a Package of one kind. Casks are
+# split between Homebrew casks and Fonts below.
+BREWFILE_PACKAGES = {
+    "brew": "Homebrew formula",
+    "vscode": "VS Code extension",
+    "uv": "Global Python package",
+}
+
+
+def brewfile_extractor(entry_type: str, kind: str) -> Extractor:
+    def extract(root: Path) -> Coverage:
+        return Coverage(
+            kind=kind,
+            doc=INVENTORY,
+            items=frozenset(brewfile_entries(root, entry_type)),
+            files=frozenset({BREWFILE}),
+        )
+
+    extract.__name__ = extract.__qualname__ = f"brewfile_{entry_type}_packages"
+    return extract
+
+
+for entry_type, kind in BREWFILE_PACKAGES.items():
+    extractor(brewfile_extractor(entry_type, kind))
 
 
 # Homebrew names every font cask `font-*`; those belong under Fonts.
@@ -183,6 +199,11 @@ CHEZMOI_ATTRIBUTES = re.compile(
 CHEZMOI_CONFIG_TEMPLATE = re.compile(r"^\.chezmoi\.(\w+)\.tmpl$")
 
 
+def is_run_file(path: str) -> bool:
+    """Whether chezmoi runs this source file instead of writing it."""
+    return Path(path).name.startswith("run_")
+
+
 def chezmoi_target(source: str) -> str:
     """The home-relative path chezmoi writes for a source path."""
     parts = []
@@ -204,7 +225,7 @@ def config_files(root: Path) -> Coverage:
             items.add(f"~/.config/chezmoi/chezmoi.{config[1]}")
             files.add(path)
             continue
-        if path.startswith(".") or Path(path).name.startswith("run_"):
+        if path.startswith(".") or is_run_file(path):
             continue
         target = chezmoi_target(path)
         if target.startswith("."):
@@ -234,26 +255,6 @@ def fonts(root: Path) -> Coverage:
             | {Path(p).name for p in font_files}
         ),
         files=frozenset({BREWFILE} | font_files),
-    )
-
-
-@extractor
-def vscode_extensions(root: Path) -> Coverage:
-    return Coverage(
-        kind="VS Code extension",
-        doc=INVENTORY,
-        items=frozenset(brewfile_entries(root, "vscode")),
-        files=frozenset({BREWFILE}),
-    )
-
-
-@extractor
-def global_python_packages(root: Path) -> Coverage:
-    return Coverage(
-        kind="Global Python package",
-        doc=INVENTORY,
-        items=frozenset(brewfile_entries(root, "uv")),
-        files=frozenset({BREWFILE}),
     )
 
 
@@ -290,7 +291,7 @@ def javascript_toolchain_packages(root: Path) -> Coverage:
 
 @extractor
 def chezmoi_run_files(root: Path) -> Coverage:
-    run_files = {p for p in tracked_files(root) if Path(p).name.startswith("run_")}
+    run_files = {p for p in tracked_files(root) if is_run_file(p)}
     return Coverage(
         kind="Chezmoi run file",
         doc=INVENTORY,
