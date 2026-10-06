@@ -277,12 +277,13 @@ MISE_CONFIG = "private_dot_config/mise/config.toml"
 
 
 @extractor
-def mise_tools(root: Path) -> Coverage:
-    tools = tomllib.loads(read(root, MISE_CONFIG)).get("tools", {})
+def javascript_toolchain_packages(root: Path) -> Coverage:
+    """The `[tools]` that mise installs: node and its package managers."""
+    packages = tomllib.loads(read(root, MISE_CONFIG)).get("tools", {})
     return Coverage(
-        kind="mise tool",
+        kind="JavaScript toolchain package",
         doc=INVENTORY,
-        items=frozenset(tools),
+        items=frozenset(packages),
         files=frozenset({MISE_CONFIG}),
     )
 
@@ -376,7 +377,7 @@ def shell_functions(root: Path) -> Coverage:
     functions = {a or b for a, b in SHELL_FUNCTION.findall(zsh)}
     widgets = {function or widget for widget, function in ZLE_WIDGET.findall(zsh)}
     return Coverage(
-        kind="Shell function",
+        kind="Alias (shell function)",
         doc=USAGE,
         items=frozenset(functions - widgets),
         files=ZSH_CONFIGS,

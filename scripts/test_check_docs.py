@@ -281,10 +281,10 @@ class GlobalNodePackagesTest(CheckTestCase):
         self.assertFailsMentioning("'skills'", "docs/inventory.md")
 
 
-class MiseToolsTest(CheckTestCase):
+class JavaScriptToolchainPackagesTest(CheckTestCase):
     MISE_CONFIG = "private_dot_config/mise/config.toml"
     MISE_CONFIG_ENTRY = (
-        "- **[`~/.config/mise/config.toml`](https://mise.jdx.dev/configuration.html)**: Tools.\n"
+        "- **[`~/.config/mise/config.toml`](https://mise.jdx.dev/configuration.html)**: Toolchain.\n"
     )
 
     def setUp(self):
@@ -298,14 +298,14 @@ class MiseToolsTest(CheckTestCase):
             + "- **[node](https://nodejs.org/docs)**: Runtime.\n",
         )
 
-    def test_passes_when_every_tool_has_an_inventory_entry(self):
+    def test_passes_when_every_package_has_an_inventory_entry(self):
         self.assertPasses()
 
-    def test_fails_naming_a_tool_missing_from_the_inventory(self):
+    def test_fails_naming_a_package_missing_from_the_inventory(self):
         self.repo.write(self.MISE_CONFIG, '[tools]\nnode = "lts"\nbun = "latest"\n')
-        self.assertFailsMentioning("mise tool", "'bun'", "docs/inventory.md")
+        self.assertFailsMentioning("JavaScript toolchain package", "'bun'", "docs/inventory.md")
 
-    def test_fails_naming_an_inventory_entry_for_a_removed_tool(self):
+    def test_fails_naming_an_inventory_entry_for_a_removed_package(self):
         self.repo.write(self.MISE_CONFIG, "[settings]\n")
         self.assertFailsMentioning("'node'", "docs/inventory.md")
 
@@ -494,7 +494,7 @@ class ShellFunctionsTest(CheckTestCase):
         self.repo.write(
             "dot_zshrc", ZSHRC_WITH_FUNCTIONS + "function up() {\n  cd ..\n}\n"
         )
-        self.assertFailsMentioning("Shell function", "'up'", "docs/usage.md")
+        self.assertFailsMentioning("Alias (shell function)", "'up'", "docs/usage.md")
 
     def test_fails_naming_a_usage_entry_for_a_removed_shell_function(self):
         self.repo.write("dot_zshrc", ZSHRC_WITH_FUNCTIONS.split("function mkcd")[0])
@@ -503,7 +503,7 @@ class ShellFunctionsTest(CheckTestCase):
     def test_fails_naming_a_shell_function_from_zshenv_missing_from_the_usage_guide(self):
         self.repo.write("dot_zshenv", "up() {\n  cd ..\n}\n")
         self.repo.write("docs/inventory.md", INVENTORY_HEADER + ZSHRC_ENTRY + ZSHENV_ENTRY)
-        self.assertFailsMentioning("Shell function", "'up'", "docs/usage.md")
+        self.assertFailsMentioning("Alias (shell function)", "'up'", "docs/usage.md")
 
     def test_passes_when_functions_from_every_zsh_config_file_are_documented(self):
         self.repo.write("dot_zshenv", "up() {\n  cd ..\n}\n")
