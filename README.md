@@ -33,8 +33,8 @@ chezmoi apply
 ```
 
 Applying writes the config files and runs the chezmoi run files, which set
-macOS preferences and install fonts, document tools, Brewfile packages, global
-Node packages, and this repository's pre-commit hook. Initialization alone
+macOS preferences and install fonts, TinyTeX and the pandoc template, Brewfile
+packages, global Node packages, and this repository's pre-commit hook. Initialization alone
 does not apply anything. The generated chezmoi configuration is separate from
 the config files chezmoi manages.
 

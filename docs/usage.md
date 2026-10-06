@@ -1,73 +1,37 @@
-# Usage
-
-How to use this setup day to day, by activity.
-
 <!--
-Template for this document. `scripts/check-docs.py` enforces the alias and
-key remap tables.
+Template for this document. `scripts/check-docs.py` enforces the tables.
 
-Sections, in this order:
-
-1. Terminal: Ghostty, MonoLisa, Catppuccin, starship, zsh vi mode and `jj`,
-   fzf, zoxide, eza aliases, a pointer to `vz`
-2. Git: aliases, pull/rebase/rerere/fetch defaults, delta, gh, scmpuff
-   numbered files
-3. Node: mise, ni, pnpm global installs, Corepack/Yarn handling
-4. Python: uv, ruff, pre-commit
-5. Editing: nvim as `$EDITOR`, VS Code/Cursor with the neovim extension
-6. Keyboard & mouse: Karabiner remaps, press-and-hold off, LinearMouse
-7. Finder
-8. Documents: pandoc, Eisvogel, TinyTeX, typst
-9. Dotfiles: chezmoi apply/diff/edit, `vz`, `dotsync`, adding a package
+Sections, in this order: Terminal, Git, Node, Python, Editing, Keyboard &
+mouse, Finder, Documents, Dotfiles.
 
 Each section has the following, leaving out what it doesn't need:
 
-- An intro of one to three sentences on what's configured and why. Keep it
-  very concise, but write for a reader who has forgotten what each setting
-  means.
-- An `Aliases` table (`Alias | Runs`) or a `Key remaps` table (`Key | Does`).
-  The check reads code spans in the first cell of every table row as entries,
-  so use code spans there only for entries:
-  - Aliases: put each shell alias, shell function, git alias, and gh alias in
-    the first cell as a code span; aliases for the same command can share a
-    row. Write git and gh aliases as you type them (`git lg`, `gh co`).
-    Describe what actually runs when you type the alias. Functions that
-    `.zshrc` registers as line editor widgets (`zle -N`) aren't aliases.
-  - Key remaps: name the key in plain text, then put the Karabiner rule's
-    `description` verbatim in a code span, as in
-    ``Caps Lock: `Caps Lock to Escape ...` ``. A remap without a description,
-    such as a Karabiner simple modification, gets plain text only.
-- A `How to` list of task → command.
-- A closing line linking the section's tools to their inventory entries.
-  Inventory entries are bullets without anchors, so link the heading they sit
-  under, such as `inventory.md#homebrew-formulae`.
+- An intro of one to three sentences on what's configured and why, for a
+  reader who has forgotten what each setting means.
+- `### Aliases`: an `Alias | Runs` table. Put each alias in the first cell as
+  a code span (git and gh aliases as typed: `git lg`); aliases for the same
+  command can share a row. Say what actually runs.
+- `### Key remaps`: a `Key | Does` table. Name the key, then put the Karabiner
+  rule's `description` verbatim in a code span: ``Caps Lock: `Caps Lock to
+  Escape ...` ``. A remap without a description gets plain text only.
+- `### How to`: a list of task → command.
+- A closing line linking the section's packages and config files to the
+  inventory heading they sit under: `inventory.md#homebrew-formulae`.
 
-```md
-## Git
-
-`git pull` rebases instead of merging. ...
-
-### Aliases
-
-| Alias | Runs |
-| --- | --- |
-| `gs` | `git status` with numbered files |
-
-### How to
-
-- Stage files by number: `ga 1 3`
-
-Inventory: [git](inventory.md#homebrew-formulae).
-```
+In a table's first cell, use code spans only for entries.
 -->
+
+# Usage
+
+How to use this setup day to day, by activity.
 
 ## Terminal
 
 Ghostty is the terminal: it uses the Catppuccin Mocha color theme and the
 MonoLisa coding font, and falls back to the Nerd Font symbols for the icons
-that eza and other tools print. zsh draws its prompt with starship and runs in
-vi mode: you start in insert mode, Esc (or typing `jj` quickly) switches to
-normal mode for Vim motions, and the cursor is a block in normal mode and a
+that eza and other commands print. zsh draws its prompt with starship and runs
+in vi mode: you start in insert mode, Esc (or typing `jj` quickly) switches
+to normal mode for Vim motions, and the cursor is a block in normal mode and a
 beam in insert mode. fzf adds fuzzy search to history and file paths, zoxide
 remembers the directories you visit, and eza replaces `ls`.
 
@@ -159,14 +123,14 @@ Inventory: [git](inventory.md#homebrew-formulae),
 
 ## Node
 
-mise installs and switches the JavaScript tools: node follows the current LTS
-release unless a project pins a version in `.nvmrc` or `.node-version`, and
-pnpm, bun, and yarn track their latest releases. ni works out which package
-manager a project uses from its lockfile and runs the matching command, so you
-type the same commands everywhere; with no lockfile it uses pnpm. Global CLIs
-go through `ni -g`, which also uses pnpm, so they land in `~/Library/pnpm` and
-are on `PATH` in every project, and setup turns off Corepack's Yarn launcher
-so that `yarn` runs mise's Yarn.
+mise installs and switches the JavaScript toolchain: node follows the current
+LTS release unless a project pins a version in `.nvmrc` or `.node-version`,
+and pnpm, bun, and yarn track their latest releases. ni works out which
+package manager a project uses from its lockfile and runs the matching
+command, so you type the same commands everywhere; with no lockfile it uses
+pnpm. Global Node packages go through `ni -g`, which also uses pnpm, so they
+land in `~/Library/pnpm` and are on `PATH` in every project, and setup turns
+off Corepack's Yarn launcher so that `yarn` runs mise's Yarn.
 
 ### How to
 
@@ -181,9 +145,9 @@ so that `yarn` runs mise's Yarn.
 - See which package manager ni picked: `na`
 - Use a different Node version in a project: put the version in `.nvmrc` or
   `.node-version`
-- See which tool versions are active: `mise ls`
-- Install a global CLI on every machine: add it to `packages.node` in
-  `.chezmoidata/packages.toml`, then `chezmoi apply`
+- See which node, pnpm, bun, and yarn versions are active: `mise ls`
+- Install a global Node package on every machine: add it to `packages.node`
+  in `.chezmoidata/packages.toml`, then `chezmoi apply`
 - Find agent skills: `skills find`
 - Install an agent skill for every project: `skills add <source> -g`
   (without `-g`, it installs into the current project)
@@ -198,7 +162,7 @@ Inventory: [mise](inventory.md#homebrew-formulae),
 
 ## Python
 
-uv installs the Brewfile's Python command-line tools, each in its own
+uv installs the Brewfile's global Python packages, each in its own
 environment, and puts their commands in `~/.local/bin`. ruff lints and formats
 Python. pre-commit runs checks before each commit; in this repository it runs
 `scripts/check-docs.py`, and `chezmoi apply` installs that hook in the source
@@ -207,7 +171,8 @@ checkout.
 ### How to
 
 - Lint and format Python: `ruff check .`, `ruff format .`
-- Run a tool once without installing it: `uvx <tool>`
+- Run a Python package's command once without installing it:
+  `uvx <package>`
 - Run a script, including one that lists its own dependencies: `uv run
   script.py`
 - Run this repository's hooks without committing: `pre-commit run
@@ -224,8 +189,7 @@ nvim (Neovim) is `$EDITOR` and `$VISUAL`, so it opens whenever a command asks
 for an editor, such as `git commit` or `chezmoi edit`. VS Code gets its
 extensions from the Brewfile, including vscode-neovim, which runs a real
 Neovim inside the editor so the same Vim motions work there; Cursor is
-installed alongside it. Press-and-hold is off in VS Code so holding a motion
-key repeats it.
+installed alongside it.
 
 ### How to
 
@@ -241,14 +205,15 @@ Inventory: [neovim](inventory.md#homebrew-formulae),
 ## Keyboard & mouse
 
 Karabiner-Elements remaps keys system-wide: Caps Lock becomes Escape when
-tapped, Fn turns any letter, number, or punctuation key into a Hyper shortcut
-(Shift+Option+Control+Command plus that key, a combination apps rarely use on
-their own, so it is free for your global shortcuts), and Right Option deletes
-forward. Press-and-hold is off everywhere, so holding a key repeats it instead
-of opening the accented-character menu. LinearMouse sets each mouse
-separately: the BenQ ZOWIE mice have fixed pointer speeds without
-acceleration and reversed scrolling, while the built-in trackpad keeps its
-usual scroll direction.
+tapped, Fn plus any letter, number, or punctuation key sends a Hyper
+combination (Shift+Option+Control+Command plus that key, which apps rarely
+use on their own, so it is free for your global shortcuts), and Right Option
+deletes forward. Press-and-hold is off everywhere, including VS Code and
+Ghostty, so holding a key, such as a Vim motion, repeats it instead of
+opening the accented-character menu. LinearMouse sets each mouse separately:
+the BenQ ZOWIE mice have fixed pointer speeds without acceleration and
+reversed scrolling, while the built-in trackpad keeps its usual scroll
+direction.
 
 ### Key remaps
 
@@ -334,13 +299,13 @@ files they track, change.
   quit)
 - Pick up a `.zshrc` change in the current shell: `exec zsh`
 - Keep a change you made directly in the home directory: `chezmoi re-add`
-- Start managing a new config file: `chezmoi add ~/.config/<tool>/<file>`
+- Start managing a new config file: `chezmoi add ~/.config/<name>/<file>`
 - Open a shell in the source checkout: `chezmoi cd`
 - Pull the latest from GitHub and apply it: `chezmoi update`
-- Add a Homebrew formula, cask, VS Code extension, or Python tool: add its
-  line to `dot_Brewfile`, then `chezmoi apply` (or install it by hand and run
-  `dotsync`)
-- Add a global Node CLI: add it to `packages.node` in
+- Add a Homebrew formula, cask, VS Code extension, or global Python package:
+  add its line to `dot_Brewfile`, then `chezmoi apply` (or install it by hand
+  and run `dotsync`)
+- Add a global Node package: add it to `packages.node` in
   `.chezmoidata/packages.toml`, then `chezmoi apply`
 - Document an addition: add an entry to [inventory.md](inventory.md), and an
   alias or key remap to this guide; the pre-commit hook fails until you do

@@ -123,8 +123,9 @@ def usage_entries(text: str) -> set[Entry]:
     """Entries are code spans in the first cell of a table's body rows.
 
     Each entry records its table's header row, such as "Key | Does", so a
-    category can count only the tables meant for it. Code spans elsewhere in a
-    row, in header rows, in prose, or in lists are not entries.
+    category can count only the tables meant for it: aliases count in any
+    table, Karabiner rule descriptions only in `Key | Does` tables. Code spans
+    elsewhere in a row, in header rows, in prose, or in lists are not entries.
     """
     entries: set[Entry] = set()
     header = None
@@ -135,7 +136,8 @@ def usage_entries(text: str) -> set[Entry]:
             header = " | ".join(table_cells(line))
         else:
             first_cell = table_cells(line)[0]
-            entries |= {Entry(name.strip(), header) for name in CODE_SPAN.findall(first_cell)}
+            names = CODE_SPAN.findall(first_cell)
+            entries |= {Entry(name.strip(), header) for name in names}
     return entries
 
 
@@ -391,7 +393,7 @@ KEY_REMAP_TABLE = "Key | Does"
 
 @extractor
 def karabiner_rules(root: Path) -> Coverage:
-    """Descriptions of the complex modification rules in every Karabiner profile."""
+    """Descriptions of the `complex_modifications` rules in every Karabiner profile."""
     text = read(root, KARABINER)
     profiles = json.loads(text).get("profiles", []) if text.strip() else []
     return Coverage(
