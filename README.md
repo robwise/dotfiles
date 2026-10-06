@@ -5,32 +5,19 @@ Choose where to keep the source checkout when initializing chezmoi.
 
 ## Set up a new machine
 
-With chezmoi installed and SSH access to the repository, set `DOTFILES_SOURCE`
-to your preferred absolute path. The path below is an example:
+Run chezmoi's one-line installer. It installs chezmoi into `~/.local/bin`,
+clones this repository into the source checkout, and applies it:
 
 ```sh
-DOTFILES_SOURCE="$HOME/dev/projects/dotfiles"
-mkdir -p "$(dirname "$DOTFILES_SOURCE")"
-chezmoi init --source "$DOTFILES_SOURCE" git@github.com:robwise/dotfiles.git
-chezmoi source-path
+sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "$HOME/.local/bin" \
+  init --apply --source "$HOME/dev/projects/dotfiles" robwise
 ```
 
-The source-path command should print the location you selected in
-`DOTFILES_SOURCE`. `--source` tells chezmoi where to clone before it can
-read the configuration template. The root `.chezmoi.toml.tmpl` remembers the
-selected location in chezmoi's local configuration for subsequent commands.
-
-Review the proposed changes:
-
-```sh
-chezmoi diff
-```
-
-Then apply them when ready:
-
-```sh
-chezmoi apply
-```
+`robwise` expands to `https://github.com/robwise/dotfiles.git`. `--source`
+picks where the source checkout lives; change the path if you want it
+elsewhere. The root `.chezmoi.toml.tmpl` remembers that location for later
+chezmoi commands. To review before anything changes, leave out `--apply`,
+then run `chezmoi diff` and `chezmoi apply`.
 
 Applying writes the config files and runs the chezmoi run files, which set
 macOS preferences and install fonts, TinyTeX and the pandoc template, Brewfile
