@@ -1,9 +1,0 @@
-repos:
-  - repo: local
-    hooks:
-      - id: check-docs
-        name: Check documentation coverage
-        entry: uv run scripts/check-docs.py
-        language: system
-        pass_filenames: false
-        always_run: true

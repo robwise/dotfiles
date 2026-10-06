@@ -1,5 +1,5 @@
 <!--
-Template for this document. `scripts/check-docs.py` enforces the entries.
+Template for this document.
 
 Headings, in this order:
 
@@ -131,4 +131,3 @@ Every package, font, config file, and chezmoi run file this repository sets up.
 - **[run_onchange_after_10-macos-keyboard.sh.tmpl](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Turns off press-and-hold system-wide, so holding a key repeats it instead of opening the accent menu. macOS only.
 - **[run_onchange_after_20-macos-finder.sh.tmpl](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Finder preferences: full path in the title bar, path bar rooted at home, search the current folder, column view, hidden files shown, and no `.DS_Store` files on network shares. Restarts Finder. macOS only.
 - **[run_onchange_after_30-install-packages.sh.tmpl](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Installs the Brewfile with `brew bundle` without upgrading what is already installed, the JavaScript toolchain packages with mise, and the global Node packages with `ni -g`, and turns off Corepack's Yarn launcher so mise's Yarn runs instead. Reruns when the Brewfile, `~/.nirc`, the mise config, or the Node package list changes. macOS only.
-- **[run_onchange_after_40-install-pre-commit-hook.sh.tmpl](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Runs `pre-commit install` in the source checkout so commits run `scripts/check-docs.py`. Runs after the packages are installed. macOS only.

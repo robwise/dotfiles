@@ -1,5 +1,5 @@
 <!--
-Template for this document. `scripts/check-docs.py` enforces the tables.
+Template for this document.
 
 Sections, in this order: Terminal, Git, Node, Python, Editing, Keyboard &
 mouse, Finder, Documents, Dotfiles.
@@ -164,9 +164,7 @@ Inventory: [mise](inventory.md#homebrew-formulae),
 
 uv installs the Brewfile's global Python packages, each in its own
 environment, and puts their commands in `~/.local/bin`. ruff lints and formats
-Python. pre-commit runs checks before each commit; in this repository it runs
-`scripts/check-docs.py`, and `chezmoi apply` installs that hook in the source
-checkout.
+Python. pre-commit runs a repository's checks before each commit.
 
 ### How to
 
@@ -175,10 +173,9 @@ checkout.
   `uvx <package>`
 - Run a script, including one that lists its own dependencies: `uv run
   script.py`
-- Run this repository's hooks without committing: `pre-commit run
-  --all-files`
-- Turn on the hooks in another repository that has a
-  `.pre-commit-config.yaml`: `pre-commit install`
+- Turn on the hooks in a repository that has a `.pre-commit-config.yaml`:
+  `pre-commit install`
+- Run a repository's hooks without committing: `pre-commit run --all-files`
 
 Inventory: [uv](inventory.md#homebrew-formulae),
 [pre-commit, ruff](inventory.md#global-python-packages-uv).
@@ -308,8 +305,7 @@ files they track, change.
 - Add a global Node package: add it to `packages.node` in
   `.chezmoidata/packages.toml`, then `chezmoi apply`
 - Document an addition: add an entry to [inventory.md](inventory.md), and an
-  alias or key remap to this guide; the pre-commit hook fails until you do
-- Check the docs by hand: `uv run scripts/check-docs.py`
+  alias or key remap to this guide
 
 Inventory: [chezmoi](inventory.md#homebrew-formulae),
 [`~/.Brewfile`, `~/.config/chezmoi/chezmoi.toml`](inventory.md#config-files),

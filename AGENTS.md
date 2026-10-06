@@ -40,6 +40,4 @@ vocabulary in `GLOSSARY.md`.
 
 Update both documents in the same change that adds, removes, or changes
 setup. Write usage prose for a reader who has forgotten what each
-setting means. `scripts/check-docs.py` fails when an inventory or usage
-entry is missing or refers to something no longer in the repo;
-pre-commit and CI run it.
+setting means.
