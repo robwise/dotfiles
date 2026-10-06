@@ -29,7 +29,15 @@ or architectural decisions, read `docs/agents/domain.md`.
 Before installing or updating global Node packages,
 read `docs/agents/global-node-packages.md`.
 
-## README
+## Documentation
 
-Keep tool entries to the tool's purpose, our current approach, and an upstream
-documentation link.
+`README.md` covers new-machine setup and links to the docs.
+`docs/inventory.md` lists every package, font, config file, and chezmoi
+run file, each with its purpose, our approach, and an upstream
+documentation link. `docs/usage.md` explains, by activity, how to use
+the setup day to day, including every alias and key remap. Use the
+vocabulary in `GLOSSARY.md`.
+
+Update both documents in the same change that adds, removes, or changes
+setup. Write usage prose for a reader who has forgotten what each
+setting means.
