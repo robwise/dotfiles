@@ -46,6 +46,14 @@ REPOSITORY_FILES = [
 
 
 @dataclass(frozen=True)
+class Entry:
+    """A name a doc documents, and the header of the table it sits in, if any."""
+
+    name: str
+    table: str = ""
+
+
+@dataclass(frozen=True)
 class Coverage:
     """What one extractor found: items that need entries in one doc."""
 
@@ -53,6 +61,12 @@ class Coverage:
     doc: str  # Repository path of the doc that must have an entry per item.
     items: frozenset[str]
     files: frozenset[str]  # Tracked files this extractor accounts for.
+    # Header of the doc tables whose entries count, e.g. "Key | Does"; None
+    # counts entries anywhere in the doc.
+    table: str | None = None
+
+    def accepts(self, entry: Entry) -> bool:
+        return self.table is None or self.table == entry.table
 
 
 Extractor = Callable[[Path], Coverage]
@@ -65,7 +79,7 @@ def extractor(function: Extractor) -> Extractor:
     return function
 
 
-DocParser = Callable[[str], set[str]]
+DocParser = Callable[[str], set[Entry]]
 DOC_PARSERS: dict[str, DocParser] = {}
 
 # Template comments and code samples hold example entries, not real ones.
@@ -73,7 +87,7 @@ NOT_ENTRIES = re.compile(r"<!--.*?-->|^```.*?^```", re.DOTALL | re.MULTILINE)
 
 
 def doc_parser(doc: str) -> Callable[[DocParser], DocParser]:
-    """Register the function that lists the entry names in a doc.
+    """Register the function that lists the entries in a doc.
 
     The function receives the doc without HTML comments and fenced code blocks.
     """
@@ -91,23 +105,38 @@ INVENTORY_ENTRY = re.compile(r"^\s*[-*]\s+\*\*\[([^\]]+)\]\([^)]*\)\*\*", re.MUL
 
 
 @doc_parser(INVENTORY)
-def inventory_entries(text: str) -> set[str]:
-    """Entries are bullets that start with a bold, linked name."""
-    return {name.strip("`") for name in INVENTORY_ENTRY.findall(text)}
+def inventory_entries(text: str) -> set[Entry]:
+    """Entries are bullets that start with a bold, linked name, under any heading."""
+    return {Entry(name.strip("`")) for name in INVENTORY_ENTRY.findall(text)}
 
 
-TABLE_FIRST_CELL = re.compile(r"^\s*\|([^|\n]*)\|", re.MULTILINE)
+TABLE_ROW = re.compile(r"^\s*\|")
 CODE_SPAN = re.compile(r"`([^`\n]+)`")
 
 
+def table_cells(row: str) -> list[str]:
+    return [cell.strip() for cell in row.strip().strip("|").split("|")]
+
+
 @doc_parser(USAGE)
-def usage_entries(text: str) -> set[str]:
-    """Entries are code spans in the first cell of a table row, in any section."""
-    return {
-        name.strip()
-        for cell in TABLE_FIRST_CELL.findall(text)
-        for name in CODE_SPAN.findall(cell)
-    }
+def usage_entries(text: str) -> set[Entry]:
+    """Entries are code spans in the first cell of a table's body rows.
+
+    Each entry records its table's header row, such as "Key | Does", so a
+    category can count only the tables meant for it. Code spans elsewhere in a
+    row, in header rows, in prose, or in lists are not entries.
+    """
+    entries: set[Entry] = set()
+    header = None
+    for line in text.splitlines():
+        if not TABLE_ROW.match(line):
+            header = None
+        elif header is None:
+            header = " | ".join(table_cells(line))
+        else:
+            first_cell = table_cells(line)[0]
+            entries |= {Entry(name.strip(), header) for name in CODE_SPAN.findall(first_cell)}
+    return entries
 
 
 # ─── Inventory extractors ─────────────────────────────────────────────────
@@ -350,6 +379,7 @@ def shell_functions(root: Path) -> Coverage:
 
 
 KARABINER = "private_dot_config/private_karabiner/private_karabiner.json"
+KEY_REMAP_TABLE = "Key | Does"
 
 
 @extractor
@@ -360,6 +390,7 @@ def karabiner_rules(root: Path) -> Coverage:
     return Coverage(
         kind="Key remap",
         doc=USAGE,
+        table=KEY_REMAP_TABLE,
         items=frozenset(
             rule["description"]
             for profile in profiles
@@ -387,14 +418,15 @@ def check(root: Path) -> list[str]:
 
     for doc, parse in DOC_PARSERS.items():
         entries = parse(NOT_ENTRIES.sub("", read(root, doc)))
-        documented: set[str] = set()
+        expected: set[str] = set()
         for coverage in (c for c in coverages if c.doc == doc):
-            documented |= coverage.items
-            for item in sorted(coverage.items - entries):
+            expected |= coverage.items
+            found = {e.name for e in entries if coverage.accepts(e)}
+            for item in sorted(coverage.items - found):
                 errors.append(f"{doc}: missing an entry for {coverage.kind} '{item}'")
-        for entry in sorted(entries - documented):
+        for name in sorted({e.name for e in entries} - expected):
             errors.append(
-                f"{doc}: entry '{entry}' matches nothing in the repository; "
+                f"{doc}: entry '{name}' matches nothing in the repository; "
                 "remove it, or teach scripts/check-docs.py to extract it"
             )
 

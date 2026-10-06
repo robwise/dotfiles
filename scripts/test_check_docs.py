@@ -638,7 +638,7 @@ class KarabinerRulesTest(CheckTestCase):
             "docs/usage.md",
             key_remap_table(
                 (f"Caps Lock: `{CAPS_LOCK_RULE}`", "Escape when tapped"),
-                (f"`{HYPER_RULE}`", "Hyper shortcuts"),
+                (f"`{HYPER_RULE}`", "Hyper combinations"),
                 ("Right Option", "Forward delete"),
             ),
         )
@@ -656,6 +656,17 @@ class KarabinerRulesTest(CheckTestCase):
     def test_fails_naming_a_usage_entry_for_a_removed_rule(self):
         self.repo.write(KARABINER_PATH, karabiner_config(CAPS_LOCK_RULE))
         self.assertFailsMentioning(f"'{HYPER_RULE}'", "docs/usage.md")
+
+    def test_fails_naming_a_rule_that_is_only_in_an_alias_table(self):
+        self.repo.write(
+            "docs/usage.md",
+            key_remap_table((f"Caps Lock: `{CAPS_LOCK_RULE}`", "Escape when tapped"))
+            + "\n"
+            + usage_table((f"`{HYPER_RULE}`", "Hyper combinations")),
+        )
+        self.assertFailsMentioning(
+            "missing an entry for Key remap", f"'{HYPER_RULE}'", "docs/usage.md"
+        )
 
 
 class RepositoryTest(unittest.TestCase):
