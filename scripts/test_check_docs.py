@@ -140,6 +140,145 @@ class TrackedFilesTest(CheckTestCase):
         self.assertPasses()
 
 
+USAGE_HEADER = "# Usage\n\n"
+
+
+def usage_table(*rows: tuple[str, str]) -> str:
+    """A usage guide with one `Alias | Runs` table."""
+    lines = ["## Git", "", "| Alias | Runs |", "| --- | --- |"]
+    lines += [f"| {alias} | {runs} |" for alias, runs in rows]
+    return USAGE_HEADER + "\n".join(lines) + "\n"
+
+
+class ShellAliasesTest(CheckTestCase):
+    def setUp(self):
+        super().setUp()
+        self.repo.write("dot_zshrc", "alias gs='git status'\nalias gc='git commit'\n")
+        self.repo.write(
+            "docs/usage.md",
+            usage_table(("`gs`", "`git status`"), ("`gc`", "`git commit`")),
+        )
+
+    def test_passes_when_every_shell_alias_is_in_a_usage_table(self):
+        self.assertPasses()
+
+    def test_fails_naming_a_shell_alias_missing_from_the_usage_guide(self):
+        self.repo.write(
+            "dot_zshrc",
+            "alias gs='git status'\nalias gc='git commit'\nalias gp='git push'\n",
+        )
+        self.assertFailsMentioning("Shell alias", "'gp'", "docs/usage.md")
+
+    def test_fails_naming_a_usage_entry_for_a_removed_shell_alias(self):
+        self.repo.write("dot_zshrc", "alias gs='git status'\n")
+        self.assertFailsMentioning("'gc'", "docs/usage.md")
+
+    def test_excuses_shell_aliases_awaiting_their_usage_section(self):
+        self.repo.write(
+            "dot_zshrc", "alias gs='git status'\nalias gc='git commit'\nalias ll='eza -lah'\n"
+        )
+        self.assertPasses()
+
+    def test_counts_several_aliases_in_one_cell(self):
+        self.repo.write("dot_zshrc", "alias gs='git status'\nalias gst='git status'\n")
+        self.repo.write("docs/usage.md", usage_table(("`gs`, `gst`", "`git status`")))
+        self.assertPasses()
+
+    def test_counts_only_code_spans_in_the_first_cell_of_a_table_row(self):
+        self.repo.write(
+            "docs/usage.md",
+            usage_table(("`gs`", "`git status`"), ("Commit", "`gc`"))
+            + "\nCommit with `gc`.\n",
+        )
+        self.assertFailsMentioning("Shell alias", "'gc'")
+
+    def test_ignores_aliases_in_code_blocks(self):
+        self.repo.write(
+            "docs/usage.md",
+            usage_table(("`gs`", "`git status`"), ("`gc`", "`git commit`"))
+            + "\n```md\n| `gx` | `git x` |\n```\n",
+        )
+        self.assertPasses()
+
+
+GITCONFIG = """\
+[pull]
+\trebase = true
+[alias]
+    lg = log --graph --all
+\tst = status
+[core]
+\tpager = delta
+"""
+
+
+class GitAliasesTest(CheckTestCase):
+    def setUp(self):
+        super().setUp()
+        self.repo.write("dot_gitconfig", GITCONFIG)
+        self.repo.write(
+            "docs/usage.md",
+            usage_table(("`git lg`", "`git log --graph`"), ("`git st`", "`git status`")),
+        )
+
+    def test_passes_when_every_git_alias_is_in_a_usage_table(self):
+        self.assertPasses()
+
+    def test_fails_naming_a_git_alias_missing_from_the_usage_guide(self):
+        self.repo.write("dot_gitconfig", GITCONFIG + "[alias]\n\tco = checkout\n")
+        self.assertFailsMentioning("Git alias", "'git co'", "docs/usage.md")
+
+    def test_fails_naming_a_usage_entry_for_a_removed_git_alias(self):
+        self.repo.write("dot_gitconfig", GITCONFIG.replace("\tst = status\n", ""))
+        self.assertFailsMentioning("'git st'", "docs/usage.md")
+
+    def test_ignores_settings_outside_the_alias_section(self):
+        self.repo.write("dot_gitconfig", "[pull]\n\trebase = true\n")
+        self.repo.write("docs/usage.md", USAGE_HEADER)
+        self.assertPasses()
+
+
+GH_CONFIG_PATH = "private_dot_config/gh/private_config.yml"
+GH_CONFIG = """\
+version: 1
+git_protocol: https
+# Aliases allow you to create nicknames for gh commands
+aliases:
+    co: pr checkout
+    # A comment inside the block
+    pv: pr view --web
+http_unix_socket:
+"""
+
+
+class GhAliasesTest(CheckTestCase):
+    def setUp(self):
+        super().setUp()
+        self.repo.write(GH_CONFIG_PATH, GH_CONFIG)
+        self.repo.write(
+            "docs/usage.md",
+            usage_table(("`gh co`", "`gh pr checkout`"), ("`gh pv`", "`gh pr view --web`")),
+        )
+
+    def test_passes_when_every_gh_alias_is_in_a_usage_table(self):
+        self.assertPasses()
+
+    def test_fails_naming_a_gh_alias_missing_from_the_usage_guide(self):
+        self.repo.write(
+            GH_CONFIG_PATH, GH_CONFIG.replace("aliases:\n", "aliases:\n    il: issue list\n")
+        )
+        self.assertFailsMentioning("gh alias", "'gh il'", "docs/usage.md")
+
+    def test_fails_naming_a_usage_entry_for_a_removed_gh_alias(self):
+        self.repo.write(GH_CONFIG_PATH, GH_CONFIG.replace("    pv: pr view --web\n", ""))
+        self.assertFailsMentioning("'gh pv'", "docs/usage.md")
+
+    def test_passes_with_no_aliases(self):
+        self.repo.write(GH_CONFIG_PATH, "version: 1\naliases: {}\n")
+        self.repo.write("docs/usage.md", USAGE_HEADER)
+        self.assertPasses()
+
+
 class RepositoryTest(unittest.TestCase):
     def test_passes_on_this_repository(self):
         result = subprocess.run(
