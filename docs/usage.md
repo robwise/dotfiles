@@ -165,8 +165,8 @@ pnpm, bun, and yarn track their latest releases. ni works out which package
 manager a project uses from its lockfile and runs the matching command, so you
 type the same commands everywhere; with no lockfile it uses pnpm. Global CLIs
 go through `ni -g`, which also uses pnpm, so they land in `~/Library/pnpm` and
-are on `PATH` in every project. Setup turns off Corepack's Yarn launcher so
-that `yarn` runs mise's Yarn.
+are on `PATH` in every project, and setup turns off Corepack's Yarn launcher
+so that `yarn` runs mise's Yarn.
 
 ### How to
 
@@ -295,8 +295,8 @@ Inventory: [run_onchange_after_20-macos-finder.sh.tmpl](inventory.md#chezmoi-run
 
 pandoc converts between document formats, such as Markdown to PDF or Word.
 PDFs go through LaTeX from TinyTeX, which lives in `~/Library/TinyTeX` with
-the LaTeX packages that PDF output needs, and the Eisvogel template gives them
-a clean, styled layout. librsvg lets pandoc put SVG images in PDFs. typst is a
+the LaTeX packages that PDF output needs; the Eisvogel template gives them a
+clean, styled layout, and librsvg lets them include SVG images. typst is a
 faster, simpler typesetting system with its own markup.
 
 ### How to
