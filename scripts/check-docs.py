@@ -46,10 +46,6 @@ REPOSITORY_FILES = [
 # deletes its group once its extractor reads these files. Exact paths only, one
 # per line, so unrelated additions still fail.
 PENDING_FILES = [
-    # Unused and awaiting deletion; remove this line in the same change that
-    # deletes the file
-    "bin/executable_md-to-gmail.sh",
-
     # Config files (PER-98)
     ".chezmoi.toml.tmpl",
     "dot_gitconfig",
