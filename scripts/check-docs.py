@@ -19,6 +19,7 @@ import argparse
 import re
 import subprocess
 import sys
+import tomllib
 from collections.abc import Callable
 from dataclasses import dataclass
 from fnmatch import fnmatch
@@ -49,36 +50,6 @@ PENDING_FILES = [
     # Unused and awaiting deletion; remove this line in the same change that
     # deletes the file
     "bin/executable_md-to-gmail.sh",
-
-    # Config files (PER-98)
-    ".chezmoi.toml.tmpl",
-    "dot_gitconfig",
-    "dot_nirc",
-    "dot_zprofile",
-    "dot_zshenv",
-    "dot_zshrc",
-    "private_dot_codex/AGENTS.md",
-    "private_dot_config/gh/private_config.yml",
-    "private_dot_config/ghostty/config.ghostty",
-    "private_dot_config/linearmouse/linearmouse.json",
-    "private_dot_config/mise/config.toml",
-    "private_dot_config/private_karabiner/private_karabiner.json",
-
-    # Global Node packages (PER-98)
-    ".chezmoidata/packages.toml",
-
-    # Fonts (PER-98)
-    "fonts/MonoLisaVariableItalic.ttf",
-    "fonts/MonoLisaVariableNormal.ttf",
-
-    # Chezmoi run files (PER-98)
-    "run_once_install-fonts.sh",
-    "run_once_install-latex-pandoc.sh",
-    "run_once_macos-defaults.sh",
-    "run_onchange_after_10-macos-keyboard.sh.tmpl",
-    "run_onchange_after_20-macos-finder.sh.tmpl",
-    "run_onchange_after_30-install-packages.sh.tmpl",
-    "run_onchange_after_40-install-pre-commit-hook.sh.tmpl",
 ]
 
 
@@ -151,6 +122,144 @@ def homebrew_formulae(root: Path) -> Coverage:
         doc=INVENTORY,
         items=frozenset(brewfile_entries(root, "brew")),
         files=frozenset({BREWFILE}),
+    )
+
+
+# Homebrew names every font cask `font-*`; those belong under Fonts.
+FONT_CASK_PREFIX = "font-"
+
+
+@extractor
+def homebrew_casks(root: Path) -> Coverage:
+    casks = brewfile_entries(root, "cask")
+    return Coverage(
+        kind="Homebrew cask",
+        doc=INVENTORY,
+        items=frozenset(c for c in casks if not c.startswith(FONT_CASK_PREFIX)),
+        files=frozenset({BREWFILE}),
+    )
+
+
+# Source-state attribute prefixes chezmoi strips from each path component.
+CHEZMOI_ATTRIBUTES = re.compile(
+    r"^(?:encrypted_|private_|readonly_|empty_|executable_|exact_)*"
+)
+# The config template `chezmoi init` renders into chezmoi's own config file.
+CHEZMOI_CONFIG_TEMPLATE = re.compile(r"^\.chezmoi\.(\w+)\.tmpl$")
+
+
+def chezmoi_target(source: str) -> str:
+    """The home-relative path chezmoi writes for a source path."""
+    parts = []
+    for part in source.split("/"):
+        part = CHEZMOI_ATTRIBUTES.sub("", part)
+        if part.startswith("dot_"):
+            part = "." + part.removeprefix("dot_")
+        parts.append(part)
+    return "/".join(parts).removesuffix(".tmpl")
+
+
+@extractor
+def config_files(root: Path) -> Coverage:
+    """Tracked files chezmoi writes to dotted paths in the home directory."""
+    items: set[str] = set()
+    files: set[str] = set()
+    for path in tracked_files(root):
+        if config := CHEZMOI_CONFIG_TEMPLATE.match(path):
+            items.add(f"~/.config/chezmoi/chezmoi.{config[1]}")
+            files.add(path)
+            continue
+        if path.startswith(".") or Path(path).name.startswith("run_"):
+            continue
+        target = chezmoi_target(path)
+        if target.startswith("."):
+            items.add(f"~/{target}")
+            files.add(path)
+    return Coverage(
+        kind="Config file",
+        doc=INVENTORY,
+        items=frozenset(items),
+        files=frozenset(files),
+    )
+
+
+FONT_FILES = "fonts/*"
+
+
+@extractor
+def fonts(root: Path) -> Coverage:
+    """Font casks from the Brewfile and font files kept in `fonts/`."""
+    casks = brewfile_entries(root, "cask")
+    font_files = {p for p in tracked_files(root) if fnmatch(p, FONT_FILES)}
+    return Coverage(
+        kind="Font",
+        doc=INVENTORY,
+        items=frozenset(
+            {c for c in casks if c.startswith(FONT_CASK_PREFIX)}
+            | {Path(p).name for p in font_files}
+        ),
+        files=frozenset({BREWFILE} | font_files),
+    )
+
+
+@extractor
+def vscode_extensions(root: Path) -> Coverage:
+    return Coverage(
+        kind="VS Code extension",
+        doc=INVENTORY,
+        items=frozenset(brewfile_entries(root, "vscode")),
+        files=frozenset({BREWFILE}),
+    )
+
+
+@extractor
+def global_python_packages(root: Path) -> Coverage:
+    return Coverage(
+        kind="Global Python package",
+        doc=INVENTORY,
+        items=frozenset(brewfile_entries(root, "uv")),
+        files=frozenset({BREWFILE}),
+    )
+
+
+PACKAGES = ".chezmoidata/packages.toml"
+# `name@version` or `@scope/name@version`; the entry is the name.
+NODE_PACKAGE_SPEC = re.compile(r"^(@?[^@]+)(?:@.*)?$")
+
+
+@extractor
+def global_node_packages(root: Path) -> Coverage:
+    specs = tomllib.loads(read(root, PACKAGES)).get("packages", {}).get("node", [])
+    return Coverage(
+        kind="Global Node package",
+        doc=INVENTORY,
+        items=frozenset(NODE_PACKAGE_SPEC.sub(r"\1", spec) for spec in specs),
+        files=frozenset({PACKAGES}),
+    )
+
+
+MISE_CONFIG = "private_dot_config/mise/config.toml"
+
+
+@extractor
+def mise_tools(root: Path) -> Coverage:
+    tools = tomllib.loads(read(root, MISE_CONFIG)).get("tools", {})
+    return Coverage(
+        kind="mise tool",
+        doc=INVENTORY,
+        items=frozenset(tools),
+        files=frozenset({MISE_CONFIG}),
+    )
+
+
+@extractor
+def chezmoi_run_files(root: Path) -> Coverage:
+    run_files = {p for p in tracked_files(root) if Path(p).name.startswith("run_")}
+    return Coverage(
+        kind="Chezmoi run file",
+        doc=INVENTORY,
+        items=frozenset(Path(p).name for p in run_files),
+        files=frozenset(run_files),
     )
 
 
