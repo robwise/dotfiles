@@ -1,0 +1,11 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+set -eu
+
+# Install Homebrew before the other chezmoi run files, which install packages
+# with it. Homebrew's installer also installs the Xcode Command Line Tools,
+# which include git.
+if [ ! -x /opt/homebrew/bin/brew ]; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+{{ end -}}
