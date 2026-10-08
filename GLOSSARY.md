@@ -26,3 +26,20 @@ _Avoid_: Dotfile, settings file
 **Chezmoi run file**:
 A script chezmoi executes while applying the repository to change machine state.
 _Avoid_: Setup script, install script, hook
+
+**Docs drift**:
+A part of the setup that the inventory or usage guide doesn't describe
+correctly: missing, out of date, or describing something no longer in the
+repository.
+_Avoid_: Doc gap, stale docs, drift (unqualified)
+
+**Destination drift**:
+A change to this machine's setup made outside the repository since chezmoi
+last applied it, such as a config file edited in place or a package installed
+by hand.
+_Avoid_: Local changes, out of sync, drift (unqualified)
+
+**Unapplied change**:
+A change in the repository that hasn't yet been applied to this machine. It is
+not drift, and `chezmoi apply` resolves it.
+_Avoid_: Pending drift, source drift
