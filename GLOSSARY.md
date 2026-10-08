@@ -26,3 +26,19 @@ _Avoid_: Dotfile, settings file
 **Chezmoi run file**:
 A script chezmoi executes while applying the repository to change machine state.
 _Avoid_: Setup script, install script, hook
+
+**Sync folder**:
+The `Dotfiles Sync` folder in the personal Google Drive. It holds app data
+that the setup relies on but that must stay out of the public repository, with
+one subfolder per app.
+_Avoid_: Drive folder, App Sync, backup folder
+
+**Manual step**:
+A setup action that chezmoi cannot perform on its own, such as signing in to an
+account, entering a license, or granting a macOS permission.
+_Avoid_: Post-install step, TODO
+
+**Setup wizard**:
+An interactive script in the repository that walks the user through each
+manual step that is still incomplete and skips the ones already done.
+_Avoid_: Checklist, walkthrough
