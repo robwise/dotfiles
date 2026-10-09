@@ -52,6 +52,7 @@ latex = [
 ]
 
 [eisvogel]
-# Release of the Eisvogel pandoc template that chezmoi installs, from
+# Release of the Eisvogel pandoc template that the LaTeX run file installs,
+# without the leading "v", from
 # https://github.com/Wandmalfarbe/pandoc-latex-template/releases
 version = "3.5.1"

@@ -265,9 +265,9 @@ a faster, simpler typesetting system with its own markup.
 Two settings in `.chezmoidata/packages.toml` in the source checkout decide what
 every Mac gets. `packages.latex` lists the LaTeX packages that `chezmoi apply`
 installs with `tlmgr`; changing the list makes the next apply install whatever
-is missing. `eisvogel.version` pins the Eisvogel release that chezmoi downloads
-into `~/.local/share/pandoc/templates`; changing it makes the next apply
-download that release.
+is missing. `eisvogel.version` pins the Eisvogel release that `chezmoi apply`
+downloads into `~/.local/share/pandoc/templates`; changing it makes the next
+apply download that release.
 
 ### How to
 
@@ -284,7 +284,6 @@ download that release.
   rebuilds on save)
 
 Inventory: [pandoc, librsvg, typst](inventory.md#homebrew-formulae),
-[`~/.local/share/pandoc/templates/eisvogel.latex`](inventory.md#config-files),
 [run_onchange_after_40-install-latex.sh.tmpl](inventory.md#chezmoi-run-files).
 
 ## Dotfiles

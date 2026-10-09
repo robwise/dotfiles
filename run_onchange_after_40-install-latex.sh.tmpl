@@ -1,23 +1,27 @@
 {{- if eq .chezmoi.os "darwin" -}}
 #!/bin/sh
 # Installs TinyTeX, the only TeX distribution, in ~/Library/TinyTeX without
-# sudo, then the LaTeX packages listed in packages.latex in
-# .chezmoidata/packages.toml. chezmoi installs the Eisvogel template itself
-# (.chezmoiexternal.toml.tmpl). Reruns when the package list changes.
+# sudo, the LaTeX packages listed in packages.latex, and the Eisvogel pandoc
+# template release in eisvogel.version (both in .chezmoidata/packages.toml).
+# Reruns when either changes.
 set -eu
 
 tinytex_bin="$HOME/Library/TinyTeX/bin/universal-darwin"
 installer_url="https://yihui.org/tinytex/install-bin-unix.sh"
+eisvogel_version={{ .eisvogel.version | quote }}
+eisvogel_url="https://github.com/Wandmalfarbe/pandoc-latex-template/releases/download/v$eisvogel_version/Eisvogel-$eisvogel_version.tar.gz"
+templates_dir="$HOME/.local/share/pandoc/templates"
 
 fail() {
   echo "install-latex: $*" >&2
   exit 1
 }
 
+work_dir="$(mktemp -d)"
+trap 'rm -rf "$work_dir"' EXIT
+
 if [ ! -x "$tinytex_bin/tlmgr" ]; then
   echo "install-latex: installing TinyTeX in ~/Library/TinyTeX"
-  work_dir="$(mktemp -d)"
-  trap 'rm -rf "$work_dir"' EXIT
   curl -fsSL "$installer_url" -o "$work_dir/install-bin-unix.sh" \
     || fail "could not download the TinyTeX installer from $installer_url"
   # The first argument is where the installer leaves the downloaded bundle.
@@ -49,6 +53,19 @@ if [ -n "$missing" ]; then
   tlmgr install $missing || fail "could not install LaTeX packages: $missing"
   missing="$(missing_packages)"
   [ -z "$missing" ] || fail "LaTeX packages still missing after tlmgr install: $missing"
+fi
+
+# eisvogel.version records the installed release, so a rerun skips the download.
+if [ ! -f "$templates_dir/eisvogel.latex" ] \
+  || [ "$(cat "$templates_dir/eisvogel.version" 2>/dev/null)" != "$eisvogel_version" ]; then
+  echo "install-latex: installing the Eisvogel template $eisvogel_version"
+  curl -fsSL "$eisvogel_url" -o "$work_dir/eisvogel.tar.gz" \
+    || fail "could not download Eisvogel $eisvogel_version from $eisvogel_url"
+  tar -xzf "$work_dir/eisvogel.tar.gz" -C "$work_dir" "Eisvogel-$eisvogel_version/eisvogel.latex" \
+    || fail "Eisvogel-$eisvogel_version/eisvogel.latex is not in $eisvogel_url"
+  mkdir -p "$templates_dir"
+  cp "$work_dir/Eisvogel-$eisvogel_version/eisvogel.latex" "$templates_dir/eisvogel.latex"
+  printf '%s\n' "$eisvogel_version" > "$templates_dir/eisvogel.version"
 fi
 
 mkdir -p "$HOME/.local/share/pandoc/defaults"

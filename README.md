@@ -19,11 +19,11 @@ elsewhere. The root `.chezmoi.toml.tmpl` remembers that location for later
 chezmoi commands. To review before anything changes, leave out `--apply`,
 then run `chezmoi diff` and `chezmoi apply`.
 
-Applying writes the config files, including the pandoc template it downloads,
-and runs the chezmoi run files, which set macOS preferences and install fonts,
-Brewfile packages, global Node packages, and TinyTeX with its LaTeX packages.
-None of this asks for a password. Initialization alone does not apply
-anything. The generated chezmoi configuration is separate from
+Applying writes the config files and runs the chezmoi run files, which set
+macOS preferences and install fonts, Brewfile packages, global Node packages,
+and TinyTeX with its LaTeX packages and the pandoc template. TinyTeX installs
+in your home folder, so it never asks for a password. Initialization alone
+does not apply anything. The generated chezmoi configuration is separate from
 the config files chezmoi manages.
 
 ## Documentation
