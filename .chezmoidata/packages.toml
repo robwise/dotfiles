@@ -1,2 +1,57 @@
 [packages]
 node = ["skills@latest"]
+# TeX Live packages that tlmgr installs into TinyTeX for pandoc's PDF output and
+# the Eisvogel template. Includes the list in Eisvogel's README, plus
+# footnotehyper, which tables need with Eisvogel. Check a name with
+# `tlmgr info <name>` before adding it.
+latex = [
+  "adjustbox",
+  "awesomebox",
+  "babel-english",
+  "babel-german",
+  "background",
+  "bidi",
+  "caption",
+  "collectbox",
+  "colortbl",
+  "csquotes",
+  "draftwatermark",
+  "everypage",
+  "filehook",
+  "float",
+  "fontawesome5",
+  "footmisc",
+  "footnotebackref",
+  "footnotehyper",
+  "framed",
+  "fvextra",
+  "hyphen-english",
+  "koma-script",
+  "letltxmacro",
+  "listings",
+  "ly1",
+  "mdframed",
+  "microtype",
+  "multirow",
+  "mweights",
+  "needspace",
+  "pagecolor",
+  "parskip",
+  "setspace",
+  "soul",
+  "sourcecodepro",
+  "sourcesans",
+  "titling",
+  "ucharcat",
+  "ulem",
+  "unicode-math",
+  "upquote",
+  "xecjk",
+  "xurl",
+  "zref",
+]
+
+[eisvogel]
+# Release of the Eisvogel pandoc template that chezmoi installs, from
+# https://github.com/Wandmalfarbe/pandoc-latex-template/releases
+version = "3.5.1"

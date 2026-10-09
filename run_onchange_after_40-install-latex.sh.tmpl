@@ -1,0 +1,55 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/sh
+# Installs TinyTeX, the only TeX distribution, in ~/Library/TinyTeX without
+# sudo, then the LaTeX packages listed in packages.latex in
+# .chezmoidata/packages.toml. chezmoi installs the Eisvogel template itself
+# (.chezmoiexternal.toml.tmpl). Reruns when the package list changes.
+set -eu
+
+tinytex_bin="$HOME/Library/TinyTeX/bin/universal-darwin"
+installer_url="https://yihui.org/tinytex/install-bin-unix.sh"
+
+fail() {
+  echo "install-latex: $*" >&2
+  exit 1
+}
+
+if [ ! -x "$tinytex_bin/tlmgr" ]; then
+  echo "install-latex: installing TinyTeX in ~/Library/TinyTeX"
+  work_dir="$(mktemp -d)"
+  trap 'rm -rf "$work_dir"' EXIT
+  curl -fsSL "$installer_url" -o "$work_dir/install-bin-unix.sh" \
+    || fail "could not download the TinyTeX installer from $installer_url"
+  # The first argument is where the installer leaves the downloaded bundle.
+  # --no-path skips its PATH setup, which needs sudo to write /etc/paths.d;
+  # this script and ~/.zshrc put TinyTeX on PATH instead.
+  sh "$work_dir/install-bin-unix.sh" "$work_dir" --no-path \
+    || fail "the TinyTeX installer failed"
+  [ -x "$tinytex_bin/tlmgr" ] \
+    || fail "the TinyTeX installer finished, but $tinytex_bin/tlmgr is missing"
+fi
+
+export PATH="$tinytex_bin:$PATH"
+
+missing_packages() {
+  installed="$(tlmgr info --only-installed --data name)" \
+    || fail "could not list the installed LaTeX packages"
+  for package in {{ .packages.latex | shellQuoteList | join " " }}; do
+    if ! printf '%s\n' "$installed" | grep -qxF "$package"; then
+      printf '%s ' "$package"
+    fi
+  done
+}
+
+missing="$(missing_packages)"
+if [ -n "$missing" ]; then
+  echo "install-latex: installing LaTeX packages: $missing"
+  tlmgr update --self || fail "could not update tlmgr"
+  # shellcheck disable=SC2086 # one word per package name
+  tlmgr install $missing || fail "could not install LaTeX packages: $missing"
+  missing="$(missing_packages)"
+  [ -z "$missing" ] || fail "LaTeX packages still missing after tlmgr install: $missing"
+fi
+
+mkdir -p "$HOME/.local/share/pandoc/defaults"
+{{ end -}}
