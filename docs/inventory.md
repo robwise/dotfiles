@@ -10,8 +10,10 @@ Headings, in this order:
 5. Global Python packages (uv)
 6. Global Node packages (ni)
 7. JavaScript toolchain (mise): node, pnpm, bun, yarn
-8. Config files
-9. Chezmoi run files
+8. TeX distribution and pandoc template: TinyTeX, Eisvogel
+9. LaTeX packages (tlmgr), linked to their CTAN pages
+10. Config files
+11. Chezmoi run files
 
 Taps get no entries. One alphabetical bullet per entry: a bold name that
 links to upstream docs, then the purpose, then our choices. Name the
@@ -59,7 +61,6 @@ Every package, font, config file, and chezmoi run file this repository sets up.
 
 ## Homebrew casks
 
-- **[basictex](https://www.tug.org/mactex/morepackages.html)**: Compact TeX Live distribution for macOS, with LaTeX engines and `tlmgr`.
 - **[cursor](https://www.cursor.com/)**: AI code editor built on VS Code.
 - **[ghostty](https://ghostty.org/)**: GPU-accelerated terminal emulator.
 - **[linearmouse](https://linearmouse.org/)**: Per-device mouse and trackpad settings, configured in `~/.config/linearmouse/linearmouse.json`.
@@ -107,6 +108,58 @@ Every package, font, config file, and chezmoi run file this repository sets up.
 - **[pnpm](https://pnpm.io/)**: Package manager.
 - **[yarn](https://yarnpkg.com/)**: Package manager for projects with a Yarn lockfile.
 
+## TeX distribution and pandoc template
+
+- **[Eisvogel](https://github.com/Wandmalfarbe/pandoc-latex-template)**: pandoc LaTeX template that gives PDFs a clean, styled layout, used with `--template eisvogel`. Pinned to the release in `eisvogel.version` in `.chezmoidata/packages.toml` and installed as `~/.local/share/pandoc/templates/eisvogel.latex` by `run_onchange_after_40-install-latex.sh.tmpl`.
+- **[TinyTeX](https://yihui.org/tinytex/)**: Small TeX Live distribution, the only TeX distribution on the Mac; pandoc's PDF output runs its LaTeX. Installed by `run_onchange_after_40-install-latex.sh.tmpl` in `~/Library/TinyTeX`, so it never needs sudo, at the latest release on first install. `~/.zshrc` puts it on `PATH`. Its package manager, `tlmgr`, installs the LaTeX packages below.
+
+## LaTeX packages (tlmgr)
+
+- **[adjustbox](https://ctan.org/pkg/adjustbox)**: Scales, trims, and frames boxes and images.
+- **[awesomebox](https://ctan.org/pkg/awesomebox)**: Note, tip, and warning boxes with Font Awesome icons.
+- **[babel-english](https://ctan.org/pkg/babel-english)**: English support for babel, LaTeX's language package.
+- **[babel-german](https://ctan.org/pkg/babel-german)**: German support for babel, LaTeX's language package.
+- **[background](https://ctan.org/pkg/background)**: Places material, such as a title page image, behind page content.
+- **[bidi](https://ctan.org/pkg/bidi)**: Right-to-left and mixed-direction text with XeLaTeX.
+- **[caption](https://ctan.org/pkg/caption)**: Customizes figure and table captions.
+- **[collectbox](https://ctan.org/pkg/collectbox)**: Collects macro arguments as boxes; adjustbox needs it.
+- **[colortbl](https://ctan.org/pkg/colortbl)**: Colors table rows, columns, and cells.
+- **[csquotes](https://ctan.org/pkg/csquotes)**: Quotation marks that match the document's language.
+- **[draftwatermark](https://ctan.org/pkg/draftwatermark)**: Prints a gray text watermark, such as DRAFT, on pages.
+- **[everypage](https://ctan.org/pkg/everypage)**: Runs code on every page, for page backgrounds and watermarks.
+- **[filehook](https://ctan.org/pkg/filehook)**: Runs code when LaTeX loads a file.
+- **[float](https://ctan.org/pkg/float)**: Keeps a figure or table exactly where it appears in the text.
+- **[fontawesome5](https://ctan.org/pkg/fontawesome5)**: Font Awesome 5 icons.
+- **[footmisc](https://ctan.org/pkg/footmisc)**: Footnote layout options.
+- **[footnotebackref](https://ctan.org/pkg/footnotebackref)**: Links each footnote back to the place that refers to it.
+- **[footnotehyper](https://ctan.org/pkg/footnotehyper)**: Footnotes that work alongside links; tables with footnotes need it with Eisvogel.
+- **[framed](https://ctan.org/pkg/framed)**: Framed or shaded blocks that can break across pages.
+- **[fvextra](https://ctan.org/pkg/fvextra)**: Code blocks that wrap long lines.
+- **[hyphen-english](https://ctan.org/pkg/hyph-utf8)**: English hyphenation patterns, from the hyph-utf8 collection.
+- **[koma-script](https://ctan.org/pkg/koma-script)**: KOMA-Script document classes, which Eisvogel's layout builds on.
+- **[letltxmacro](https://ctan.org/pkg/letltxmacro)**: Safely copies a LaTeX command so another package can redefine it.
+- **[listings](https://ctan.org/pkg/listings)**: Typesets source code with highlighting; pandoc uses it for code blocks with `--listings`.
+- **[ly1](https://ctan.org/pkg/ly1)**: LY1 font encoding, which some text fonts use.
+- **[mdframed](https://ctan.org/pkg/mdframed)**: Framed boxes that split across pages.
+- **[microtype](https://ctan.org/pkg/microtype)**: Small spacing and margin adjustments that make text look more even.
+- **[multirow](https://ctan.org/pkg/multirow)**: Table cells that span several rows.
+- **[mweights](https://ctan.org/pkg/mweights)**: Chooses among a font's weights; the Source font packages need it.
+- **[needspace](https://ctan.org/pkg/needspace)**: Starts a new page when too little space is left, so headings stay with their text.
+- **[pagecolor](https://ctan.org/pkg/pagecolor)**: Sets and reads the page background color.
+- **[parskip](https://ctan.org/pkg/parskip)**: Separates paragraphs with space instead of indenting them.
+- **[setspace](https://ctan.org/pkg/setspace)**: Line spacing.
+- **[soul](https://ctan.org/pkg/soul)**: Letter spacing, underlining, strikethrough, and highlighting.
+- **[sourcecodepro](https://ctan.org/pkg/sourcecodepro)**: Source Code Pro, Eisvogel's monospaced font.
+- **[sourcesans](https://ctan.org/pkg/sourcesans)**: Source Sans, Eisvogel's sans-serif font.
+- **[titling](https://ctan.org/pkg/titling)**: Customizes the title block.
+- **[ucharcat](https://ctan.org/pkg/ucharcat)**: Provides XeTeX's `\Ucharcat` command on LuaTeX; on Eisvogel's list of required packages.
+- **[ulem](https://ctan.org/pkg/ulem)**: Underlining and strikeout; pandoc uses it for strikethrough text.
+- **[unicode-math](https://ctan.org/pkg/unicode-math)**: Unicode math fonts with XeLaTeX; pandoc uses it for math.
+- **[upquote](https://ctan.org/pkg/upquote)**: Straight quotes in code blocks instead of curly ones.
+- **[xecjk](https://ctan.org/pkg/xecjk)**: Chinese, Japanese, and Korean text with XeLaTeX.
+- **[xurl](https://ctan.org/pkg/xurl)**: Line breaks anywhere inside long URLs.
+- **[zref](https://ctan.org/pkg/zref)**: Extended cross-reference system; mdframed needs it.
+
 ## Config files
 
 - **[`~/.Brewfile`](https://docs.brew.sh/Brew-Bundle-and-Brewfile)**: Lists every Homebrew formula, cask, VS Code extension, and global Python package. A chezmoi run file installs from it whenever it changes.
@@ -126,8 +179,8 @@ Every package, font, config file, and chezmoi run file this repository sets up.
 ## Chezmoi run files
 
 - **[run_once_install-fonts.sh](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Installs the Nerd Font symbols cask and copies the MonoLisa files from `fonts/` to `~/Library/Fonts`. Runs once per machine.
-- **[run_once_install-latex-pandoc.sh](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Installs TinyTeX in `~/Library/TinyTeX`, the LaTeX packages that PDF output needs, and the Eisvogel pandoc template. Runs once per machine.
 - **[run_once_macos-defaults.sh](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Turns off press-and-hold in VS Code and Ghostty so held keys repeat for Vim motions. Runs once per machine.
 - **[run_onchange_after_10-macos-keyboard.sh.tmpl](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Turns off press-and-hold system-wide, so holding a key repeats it instead of opening the accent menu. macOS only.
 - **[run_onchange_after_20-macos-finder.sh.tmpl](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Finder preferences: full path in the title bar, path bar rooted at home, search the current folder, column view, hidden files shown, and no `.DS_Store` files on network shares. Restarts Finder. macOS only.
 - **[run_onchange_after_30-install-packages.sh.tmpl](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Installs the Brewfile with `brew bundle` without upgrading what is already installed, the JavaScript toolchain packages with mise, and the global Node packages with `ni -g`, and turns off Corepack's Yarn launcher so mise's Yarn runs instead. Reruns when the Brewfile, `~/.nirc`, the mise config, or the Node package list changes. macOS only.
+- **[run_onchange_after_40-install-latex.sh.tmpl](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/)**: Installs TinyTeX, the only TeX distribution, in `~/Library/TinyTeX` without sudo; the LaTeX packages in `packages.latex` that PDF output and the Eisvogel template need; and the Eisvogel pandoc template release pinned in `eisvogel.version`, as `~/.local/share/pandoc/templates/eisvogel.latex`. Both settings are in `.chezmoidata/packages.toml`. Also creates `~/.local/share/pandoc/defaults`, the folder where pandoc looks for defaults files. Skips the TinyTeX installer's PATH setup, which would ask for a password, since `~/.zshrc` puts TinyTeX on `PATH`. Updates `tlmgr` and installs packages only when some are missing, downloads Eisvogel only when the installed release differs, and stops with an error if a download or install fails. Reruns when either setting changes. macOS only.

@@ -20,9 +20,10 @@ chezmoi commands. To review before anything changes, leave out `--apply`,
 then run `chezmoi diff` and `chezmoi apply`.
 
 Applying writes the config files and runs the chezmoi run files, which set
-macOS preferences and install fonts, TinyTeX and the pandoc template, Brewfile
-packages, and global Node packages. Initialization alone does not apply
-anything. The generated chezmoi configuration is separate from
+macOS preferences and install fonts, Brewfile packages, global Node packages,
+and TinyTeX with its LaTeX packages and the pandoc template. TinyTeX installs
+in your home folder, so it never asks for a password. Initialization alone
+does not apply anything. The generated chezmoi configuration is separate from
 the config files chezmoi manages.
 
 ## Documentation

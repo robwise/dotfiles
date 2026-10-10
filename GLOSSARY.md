@@ -7,7 +7,8 @@ repository with chezmoi.
 
 **Package**:
 One entry that a package manager installs: a Homebrew formula or cask, a VS
-Code extension, a global Python or Node package, or a mise-managed tool.
+Code extension, a global Python or Node package, a mise-managed tool, or a TeX
+Live package that tlmgr installs into TinyTeX.
 _Avoid_: Application, command line utility, tool
 
 **Alias**:

@@ -4,6 +4,7 @@
 
 export EDITOR=nvim
 export VISUAL=nvim
+# TinyTeX; run_onchange_after_40-install-latex.sh.tmpl installs it and repeats this path.
 export PATH="$HOME/Library/TinyTeX/bin/universal-darwin:$PATH"
 
 # ─────────────────────────────────────────
