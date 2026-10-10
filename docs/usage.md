@@ -269,6 +269,11 @@ is missing. `eisvogel.version` pins the Eisvogel release that `chezmoi apply`
 downloads into `~/.local/share/pandoc/templates`; changing it makes the next
 apply download that release.
 
+A pandoc defaults file is a YAML file of command-line options saved under a
+name, so you don't retype them. `chezmoi apply` creates the folder pandoc looks
+in, `~/.local/share/pandoc/defaults`, but leaves it empty; any defaults files
+in it are yours and stay on this Mac only.
+
 ### How to
 
 - Convert Markdown to a PDF: `pandoc notes.md -o notes.pdf --pdf-engine=xelatex`
@@ -280,10 +285,17 @@ apply download that release.
 - Update the Eisvogel template: set `eisvogel.version` to a release number from
   the [Eisvogel releases](https://github.com/Wandmalfarbe/pandoc-latex-template/releases),
   without the leading `v`, then `chezmoi apply`
+- Reuse a set of pandoc options: save them as `eisvogel-pdf.yaml` in
+  `~/.local/share/pandoc/defaults` (keys as in the
+  [defaults file reference](https://pandoc.org/MANUAL.html#defaults-files),
+  such as `pdf-engine: xelatex` and `template: eisvogel`), then
+  `pandoc notes.md -o notes.pdf -d eisvogel-pdf`
 - Build a typst document: `typst compile doc.typ` (`typst watch doc.typ`
   rebuilds on save)
 
 Inventory: [pandoc, librsvg, typst](inventory.md#homebrew-formulae),
+[TinyTeX, Eisvogel](inventory.md#tex-distribution-and-pandoc-template),
+[LaTeX packages](inventory.md#latex-packages-tlmgr),
 [run_onchange_after_40-install-latex.sh.tmpl](inventory.md#chezmoi-run-files).
 
 ## Dotfiles

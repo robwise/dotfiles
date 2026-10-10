@@ -6,6 +6,7 @@
 # Reruns when either changes.
 set -eu
 
+# dot_zshrc repeats this path to put TinyTeX on PATH; change both together.
 tinytex_bin="$HOME/Library/TinyTeX/bin/universal-darwin"
 installer_url="https://yihui.org/tinytex/install-bin-unix.sh"
 eisvogel_version={{ .eisvogel.version | quote }}
